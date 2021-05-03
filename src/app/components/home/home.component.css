@@ -1,0 +1,64 @@
+/* Structure */
+table {
+  width: 100%;
+  /* table-layout: fixed; */
+}
+  
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+td {
+  vertical-align: middle;
+}
+
+.mat-row {
+  height: 90px;
+}
+
+.mat-cell {
+  padding: 10px;
+}
+
+/* .mat-column-title {
+  width: 25%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mat-column-journal {
+  width: 20%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mat-column-description {
+  width: 40%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mat-column-link {
+  width: 5%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mat-column-deadline {
+  width: 10%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+} */
+
+.mat-button-size {
+  width: 220px!important;
+  min-width: unset!important;
+  white-space: pre-wrap !important;
+  line-height: normal;
+}
