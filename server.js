@@ -14,7 +14,7 @@ const app = express();
 const connectionString = process.env.DATABASE_URL;
 
 // Serve only the static files form the dist directory
-app.use(express.static(__dirname + '/dist/the-right-call-app'));
+app.use(express.static(__dirname + '/dist/hube-call-app'));
 
 app.use(bodyParser.json())
 app.use(
@@ -23,58 +23,16 @@ app.use(
   })
 )
 
-// Route par défaut qui redirige vers l'index html
-app.get('*', function(req, res) {
-  res.sendfile('./dist/the-right-call-app/index.html')
-})
-
 // Start the app by listening on the default Heroku port
 app.listen(process.env.PORT || 8080);
 
 const pool = new Pool({
   connectionString: connectionString,
-  ssl:true,
+  ssl:false,
 });
 
-// Handler error pour gérer les erreur de PostgresSQL
-function parseError(err, sqlString) {
-  console.log("nparseError:", sqlString);
-
-  let errorCodes = {
-    "08003": "connection_does_not_exist",
-    "08006": "connection_failure",
-    "2F002": "modifying_sql_data_not_permitted",
-    "57P03": "cannot_connect_now",
-    "42601": "syntax_error",
-    "42501": "insufficient_privilege",
-    "42602": "invalid_name",
-    "42622": "name_too_long",
-    "42939": "reserved_name",
-    "42703": "undefined_column",
-    "42000": "syntax_error_or_access_rule_violation",
-    "42P01": "undefined_table",
-    "42P02": "undefined_parameter"
-  };
-
-  if (err === undefined) {
-    console.warn("No errors returned from Postgres");
-  } else {
-    // console.log("ERROR Object.keys():", Object.keys(err))
-    if (err.message !== undefined) {
-      console.error("ERROR message:", err.message);
-    }
-
-    if (err.code != 23505) {
-      console.error("Postgres error code:", err.code);
-
-      if (errorCodes[err.code] !== undefined) {
-        console.error("Error code details:", errorCodes[err.code]);
-      }
-    }
-  }
-}
-
 console.log("Connexion réussie à la base de données !");
+
 
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
@@ -85,7 +43,6 @@ const getCall = (request, response) => {
     response.status(200).json(results.rows)
   })
 }
-
 
 //Get un call par Id
 const getCallbyId = (request, response) => {
@@ -133,14 +90,6 @@ const getCallFilterFNEGE = (request, response) => {
     response.status(200).json(results.rows)
   })
 }
-
-// Association des appels API avec des routes
-app.get('/api/getCall', getCall);
-app.get('/api/getCall/:id',getCallbyId);
-app.post('/api/createCall',createCall);
-app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
-app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
-app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 
 //---------- Revue ----------\\
 
@@ -191,15 +140,7 @@ const updateOARevue = (request, response) => {
     parseError(error, sql);
     response.status(201).send(`Revue updated`)
   })
-} 
-
-// Association des appels API avec des routes
-app.get('/api/getRevue', getRevue);
-app.get('/api/getRevue/:id',getRevuebyId);
-app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
-app.post('/api/createRevue',createRevue);
-app.put('/api/updateOARevue',updateOARevue); 
-
+}
 
 //---------- Editeur ----------\\
 
@@ -243,12 +184,6 @@ const createEditeur = (request, response) => {
   })
 }
 
-// Association des appels API avec des routes
-app.get('/api/getEditeur', getEditeur);
-app.get('/api/getEditeur/:id',getEditeurbyId);
-app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
-app.post('/api/createEditeur',createEditeur);
-
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
@@ -256,3 +191,70 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsEG();
   await updateJournals();
 });
+
+
+
+// Association des appels API avec des routes
+app.get('/api/getCall', getCall);
+app.get('/api/getCall/:id',getCallbyId);
+app.post('/api/createCall',createCall);
+app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
+app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
+app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
+
+// Association des appels API avec des routes
+app.get('/api/getRevue', getRevue);
+app.get('/api/getRevue/:id',getRevuebyId);
+app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
+app.post('/api/createRevue',createRevue);
+app.put('/api/updateOARevue',updateOARevue); 
+
+// Association des appels API avec des routes
+app.get('/api/getEditeur', getEditeur);
+app.get('/api/getEditeur/:id',getEditeurbyId);
+app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
+app.post('/api/createEditeur',createEditeur);
+
+
+// Route par défaut qui redirige vers l'index html
+app.get('*', function(req, res) {
+  res.sendfile('./dist/hube-call-app/index.html')
+})
+
+// Handler error pour gérer les erreur de PostgresSQL
+function parseError(err, sqlString) {
+  console.log("nparseError:", sqlString);
+
+  let errorCodes = {
+    "08003": "connection_does_not_exist",
+    "08006": "connection_failure",
+    "2F002": "modifying_sql_data_not_permitted",
+    "57P03": "cannot_connect_now",
+    "42601": "syntax_error",
+    "42501": "insufficient_privilege",
+    "42602": "invalid_name",
+    "42622": "name_too_long",
+    "42939": "reserved_name",
+    "42703": "undefined_column",
+    "42000": "syntax_error_or_access_rule_violation",
+    "42P01": "undefined_table",
+    "42P02": "undefined_parameter"
+  };
+
+  if (err === undefined) {
+    console.warn("No errors returned from Postgres");
+  } else {
+    // console.log("ERROR Object.keys():", Object.keys(err))
+    if (err.message !== undefined) {
+      console.error("ERROR message:", err.message);
+    }
+
+    if (err.code != 23505) {
+      console.error("Postgres error code:", err.code);
+
+      if (errorCodes[err.code] !== undefined) {
+        console.error("Error code details:", errorCodes[err.code]);
+      }
+    }
+  }
+}

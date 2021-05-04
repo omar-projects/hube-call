@@ -5,17 +5,10 @@ import { map } from 'rxjs/operators';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Revue } from 'src/app/models/revue';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
-
-/*
-  Objet que nous passons au Dialog (Donner récupérable dans le modal-info-journal.html)
-*/
-export interface DialogData {
-  revue: Revue;
-  openAccess: string;
-}
+import { ModalInfoJournalComponent } from './modal-info-journal/modal-info-journal.component';
 
 @Component({
   selector: 'app-home',
@@ -48,7 +41,6 @@ export class HomeComponent implements OnInit {
     this.checkoutForm = this.formBuilder.group({
       rank: ['', Validators.required]
     })
-  
   }
 
   // Récupération des données via les appels API du service de Revue et CallsForPaper
@@ -115,7 +107,7 @@ export class HomeComponent implements OnInit {
       this.openAccess = "Yes";
     else
       this.openAccess = "No";
-    this.dialog.open(ModalInfoJournal, {
+    this.dialog.open(ModalInfoJournalComponent, {
       width: '300px',
       data: {revue: revue, openAccess: this.openAccess}
     });
@@ -156,24 +148,6 @@ export class HomeComponent implements OnInit {
       map((value) => value[0].sjr)
     )
   }
-}
-
-@Component({
-  selector: 'modal-info-journal',
-  templateUrl: 'modal-info-journal.html',
-})
-export class ModalInfoJournal {
-
-  // Classe correspondant au modal-info-journal.html on y injecte les données (Dialog Data)
-  constructor(
-    public dialogRef: MatDialogRef<ModalInfoJournal>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
-
-  // Méthode qui ferme le dialog
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
 }
 
 

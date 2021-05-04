@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "the-right-call-app": {
+    "hube-call-app": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/the-right-call-app",
+            "outputPath": "dist/hube-call-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -63,18 +63,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "the-right-call-app:build"
+            "browserTarget": "hube-call-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "the-right-call-app:build:production"
+              "browserTarget": "hube-call-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "the-right-call-app:build"
+            "browserTarget": "hube-call-app:build"
           }
         },
         "test": {
@@ -112,18 +112,18 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "the-right-call-app:serve"
+            "devServerTarget": "hube-call-app:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "the-right-call-app:serve:production"
+              "devServerTarget": "hube-call-app:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "the-right-call-app",
+  "defaultProject": "hube-call-app",
   "cli": {
     "analytics": "6176cfc5-b682-4901-93fa-91392bfdc6a0"
   }

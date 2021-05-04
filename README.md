@@ -1,4 +1,4 @@
-# TheRightCallApp
+# HubeCallApp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.1.
 
@@ -14,7 +14,7 @@ https://doc.ubuntu-fr.org/postgresql#methode_alternative_pour_creer_un_utilisate
 
 **Finally run the sql script located in :**
 
-`"the-right-call-app/src/server/pgsql_script.sql"`
+`"hube-call-app/src/server/pgsql_script.sql"`
 
 > *Check the doc to know how to run a sql file in the shell of postgres ("\i")*
 
@@ -49,8 +49,8 @@ As you can see, you have to set 2 environments variables :
 ## Change some lines in the code
 
 You will have to change some lines in the following files :
-- `the-right-call-app/src/app/services/call-for-paper.service.ts`
-- `the-right-call-app/src/app/services/revue.service.ts`
+- `hube-call-app/src/app/services/call-for-paper.service.ts`
+- `hube-call-app/src/app/services/revue.service.ts`
 
 Change `${this.apiURL}` by `${this.apiURLlocal}`
 
