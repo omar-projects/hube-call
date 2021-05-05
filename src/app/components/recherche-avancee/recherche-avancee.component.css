@@ -20,6 +20,7 @@ form {
     width: 100%;
     display: inline-flex;
     justify-content: space-between;
+    margin-top: 30px;
 }
 
 .abstract-info > label {
@@ -57,4 +58,10 @@ form {
 .icon {
     font-size: 18px;
     margin-left: 5px;
+}
+
+.explication {
+    font-size: 19px;
+    font-style: italic;
+    margin-bottom: 30px;
 }
