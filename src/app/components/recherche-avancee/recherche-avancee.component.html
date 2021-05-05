@@ -1,0 +1,24 @@
+<div class="docs-primary-header mat-elevation-z6">
+    <h1>Find Calls For Papers</h1>
+</div>
+
+<div class="content">
+    <form [formGroup]="rechercheAvanceeFormGroup" (submit)="onSubmit()">
+        <div class="explication">
+            Enter abstract of your paper to easily find appropriate calls for paper by using text-mining technology.
+        </div>
+        
+        <hr style="width: 30%;">
+
+        <div class="abstract-info">
+            <label for="abstract">Paper abstract *</label>
+            <div *ngIf="error.abstract" class="error">Abstract required</div>
+            <em>Maximum 5,000 characters<span class="material-icons icon">info</span></em>
+        </div>
+        <textarea class="abstract-field" formControlName="abstract" maxlength="5000" [ngClass]="{ 'field-has-error': error.abstract }" 
+            (keyup)="affichageErreur()" placeholder="Enter your paper abstract here"></textarea>
+
+        <button class="btn" type="submit">Find</button>
+
+    </form>
+</div>

@@ -1,57 +1,63 @@
-<mat-form-field>
-    <mat-label>Filter</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
-</mat-form-field>
+<div class="docs-primary-header mat-elevation-z6">
+    <h1>Grouping of all Calls For Papers</h1>
+</div>
+
+<div class="content">
+    <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
+    </mat-form-field>
 
 
-<form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
 
-    <mat-label>Filter by Rank</mat-label>
-    <br>
-    <input type="radio" value='None' formControlName="rank">None
-    <input type="radio" value='CNRS' formControlName="rank" >CNRS
-    <input type="radio" value='FNEGE' formControlName="rank">FNEGE
-    <input type="radio" value='HCERES' formControlName="rank">HCERES
+        <mat-label>Filter by Rank</mat-label>
+        <br>
+        <input type="radio" value='None' formControlName="rank">None
+        <input type="radio" value='CNRS' formControlName="rank" >CNRS
+        <input type="radio" value='FNEGE' formControlName="rank">FNEGE
+        <input type="radio" value='HCERES' formControlName="rank">HCERES
 
-    <button class="button" type="submit">Valid</button>
-  
-  </form>
-
-
-<table mat-table class="mat-elevation-z8" [dataSource]="dataSource" matSort>
+        <button class="button" type="submit">Valid</button>
     
-    <ng-container matColumnDef="title">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
-        <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.title }}</td>
-    </ng-container>
-    
-    <ng-container matColumnDef="journal">
-        <th mat-header-cell *matHeaderCellDef> Journal </th>
-        <td mat-cell *matCellDef="let item"><button mat-button class="mat-button-size" (click)="openDialog(item.fk_revue)">{{item.fk_revue | getRevueNameById | async}}</button></td>
-    </ng-container>
-    
-    <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
-        <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
-    </ng-container>
+    </form>
 
-    <ng-container matColumnDef="link">
-        <th mat-header-cell *matHeaderCellDef> Link </th>
-        <td mat-cell *matCellDef="let item"><a mat-button href="{{ item.url }}" target="_blank">URL</a></td>
-    </ng-container>
 
-    <ng-container matColumnDef="deadline">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Deadline </th>
-        <td mat-cell *matCellDef="let item">{{ item.deadline }}</td>
-    </ng-container>
+    <table mat-table class="mat-elevation-z8" [dataSource]="dataSource" matSort>
+        
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+            <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.title }}</td>
+        </ng-container>
+        
+        <ng-container matColumnDef="journal">
+            <th mat-header-cell *matHeaderCellDef> Journal </th>
+            <td mat-cell *matCellDef="let item"><button mat-button class="mat-button-size" (click)="openDialog(item.fk_revue)">{{item.fk_revue | getRevueNameById | async}}</button></td>
+        </ng-container>
+        
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
+            <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
+        </ng-container>
 
-    <ng-container matColumnDef="SJR">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> SJR </th>
-        <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async"></td>
-    </ng-container>
-    
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-</table> 
+        <ng-container matColumnDef="link">
+            <th mat-header-cell *matHeaderCellDef> Link </th>
+            <td mat-cell *matCellDef="let item"><a mat-button href="{{ item.url }}" target="_blank">URL</a></td>
+        </ng-container>
 
-<mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+        <ng-container matColumnDef="deadline">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Deadline </th>
+            <td mat-cell *matCellDef="let item">{{ item.deadline }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="SJR">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> SJR </th>
+            <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async"></td>
+        </ng-container>
+        
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table> 
+
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>

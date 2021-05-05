@@ -1,0 +1,67 @@
+form {
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    margin-inline: 20%;
+}
+
+
+.error {
+    color: red;
+}
+
+.field-has-error {
+    border-color: red;
+}
+
+
+
+.abstract-info {
+    width: 100%;
+    display: inline-flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.abstract-info > label {
+    font-size: 18px;
+}
+
+.abstract-info > em {
+    display: inline-flex;
+    font-size: 12px;
+}
+
+.abstract-field {
+    height: 350px;
+    width: 100%;
+    margin-block: 5px 10px;
+}
+
+.btn {
+    background-color: #f4511e;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: 0.3s;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 1
+}
+
+.icon {
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.explication {
+    font-size: 19px;
+    font-style: italic;
+    margin-bottom: 30px;
+}

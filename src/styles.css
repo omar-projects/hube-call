@@ -6,3 +6,21 @@ body {
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif; 
 }
+
+.docs-primary-header {
+    padding-left:20px;
+    background: #673ab7;
+    box-shadow: inset 0px 5px 3px 0px rgba(0,0,0,0.25);
+}
+  
+.docs-primary-header h1 {
+    color: white;
+    font-weight:300;
+    margin:0;
+    padding:28px 8px;
+    font-size:20px;
+}
+
+.content {
+    margin: 3em;
+}
