@@ -23,17 +23,12 @@ app.use(
   })
 )
 
-// Route par défaut qui redirige vers l'index html
-app.get('*', function(req, res) {
-  res.sendfile('./dist/the-right-call-app/index.html')
-})
-
 // Start the app by listening on the default Heroku port
 app.listen(process.env.PORT || 8080);
 
 const pool = new Pool({
   connectionString: connectionString,
-  ssl:true,
+  ssl:false,
 });
 
 // Handler error pour gérer les erreur de PostgresSQL
@@ -256,3 +251,8 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsEG();
   await updateJournals();
 });
+
+// Route par défaut qui redirige vers l'index html
+app.get('*', function(req, res) {
+  res.sendfile('./dist/the-right-call-app/index.html')
+})

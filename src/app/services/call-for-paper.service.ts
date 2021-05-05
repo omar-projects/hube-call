@@ -14,26 +14,26 @@ export class CallForPaperService {
   constructor(private http: HttpClient) {}
 
   public getCalls() {
-    return this.http.get<CallForPaper[]>(`${this.apiURL}/getCall`);
+    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCall`);
   }
 
   public getCallById(id: number) {
-    return this.http.get(`${this.apiURL}/getCall/${id}`)
+    return this.http.get(`${this.apiURLlocal}/getCall/${id}`)
   }
 
   public createCall(call: CallForPaper) {
-    return this.http.post(`${this.apiURL}/createCall`,call);
+    return this.http.post(`${this.apiURLlocal}/createCall`,call);
   }  
 
   public getCallsFilterHCERES() {
-    return this.http.get<CallForPaper[]>(`${this.apiURL}/getCallFilterHCERES`);
+    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterHCERES`);
   }
   
   public getCallsFilterCNRS() {
-    return this.http.get<CallForPaper[]>(`${this.apiURL}/getCallFilterCNRS`);
+    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterCNRS`);
   }
 
   public getCallsFilterFNEGE() {
-    return this.http.get<CallForPaper[]>(`${this.apiURL}/getCallFilterFNEGE`);
+    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterFNEGE`);
   }
 }

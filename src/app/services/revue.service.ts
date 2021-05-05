@@ -15,18 +15,18 @@ export class RevueService {
   constructor(private http: HttpClient) {}
 
   public getRevues() {
-    return this.http.get<Revue[]>(`${this.apiURL}/getRevue`);
+    return this.http.get<Revue[]>(`${this.apiURLlocal}/getRevue`);
   }
 
   public getRevueById(id: number) {
-    return this.http.get<Revue>(`${this.apiURL}/getRevue/${id}`)
+    return this.http.get<Revue>(`${this.apiURLlocal}/getRevue/${id}`)
   }
 
   public getRevueIdbyName(id: string) {
-    return this.http.get(`${this.apiURL}/getRevueIdbyName/${id}`)
+    return this.http.get(`${this.apiURLlocal}/getRevueIdbyName/${id}`)
   }
 
   public createRevue(revue: Revue) {
-    return this.http.post(`${this.apiURL}/createRevue`,revue);
+    return this.http.post(`${this.apiURLlocal}/createRevue`,revue);
   } 
 }
