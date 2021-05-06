@@ -47,7 +47,7 @@ const getCall = (request, response) => {
 //Get un call par Id
 const getCallbyId = (request, response) => {
   const id = parseInt(request.params.id);
-  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1'; 
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
   pool.query(sql,[id], (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -207,7 +207,7 @@ app.get('/api/getRevue', getRevue);
 app.get('/api/getRevue/:id',getRevuebyId);
 app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
 app.post('/api/createRevue',createRevue);
-app.put('/api/updateOARevue',updateOARevue); 
+app.put('/api/updateOARevue',updateOARevue);
 
 // Association des appels API avec des routes
 app.get('/api/getEditeur', getEditeur);
@@ -258,3 +258,13 @@ function parseError(err, sqlString) {
     }
   }
 }
+
+// Créer un call
+const insertKeyWords = (keyWords, id) => {
+  const sql = 'UPDATE "CallForPaper" SET "kwords" = $1 WHERE "id" = $2';
+  pool.query(sql, [keyWords, id], (error, results) => {
+    parseError(error, sql);
+  })
+}
+
+insertKeyWords('test,test2,test3', 2);

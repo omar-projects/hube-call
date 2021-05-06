@@ -10,6 +10,7 @@ CREATE TABLE "CallForPaper" (
 	"deadline" varchar(255),
 	"desc" text NOT NULL,
 	"url" varchar(255) NOT NULL,
+	"kwords" text NOT NULL,
 	CONSTRAINT "CallForPaper_pk" PRIMARY KEY ("id"),
 	UNIQUE ("title","fk_revue","deadline")
 ) WITH (
