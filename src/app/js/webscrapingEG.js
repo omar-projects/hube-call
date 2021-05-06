@@ -102,11 +102,11 @@ const getResultsEG = async () => {
   for(var i = 0 ; i < revueName.length ; i++) {
     console.log(" -> création de la revue : " + revueName[i]);
 
-    const rankCNRS = 0; //await getRankOfReviewCNRS(revueName[i]);
-    const rankHCERES = 0; //await getRankOfReviewHCERES(revueName[i]);
-    const rankFNEGE = 0; //await getRankOfReviewFNEGE(revueName[i]);
-    const isOpenAccess = true; //await getOpenAccess(revueName[i]);
-    const sjr = ""; //await getSjrWidget(revueName[i]);
+    const rankCNRS = await getRankOfReviewCNRS(revueName[i]);
+    const rankHCERES = await getRankOfReviewHCERES(revueName[i]);
+    const rankFNEGE = await getRankOfReviewFNEGE(revueName[i]);
+    const isOpenAccess = await getOpenAccess(revueName[i]);
+    const sjr = await getSjrWidget(revueName[i]);
 
     await axios.post(`${process.env.URL_API}/createRevue`,{
       editeur: 1,
