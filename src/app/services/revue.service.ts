@@ -8,24 +8,32 @@ import { Revue } from '../models/revue';
 // Service permettant la récupration des Revues via des appels API, ne pas oublié de changer l'url en fonction de l'environnement d'execution
 export class RevueService {
 
-  apiURL: string = 'https://the-right-call.herokuapp.com/api';
+  apiURL: string = 'https://etud-kvm-oboub.leria-etud.univ-angers.fr/api';
   apiURLlocal: string = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
 
   public getRevues() {
-    return this.http.get<Revue[]>(`${this.apiURLlocal}/getRevue`);
+    const url = `${this.apiURL}/getRevue`;
+    console.log('getRevues |  url = ' + url);
+    return this.http.get<Revue[]>(url);
   }
 
   public getRevueById(id: number) {
-    return this.http.get<Revue>(`${this.apiURLlocal}/getRevue/${id}`)
+    const url = `${this.apiURL}/getRevue/${id}`;
+    console.log('getRevueById |  url = ' + url);
+    return this.http.get<Revue>(url);
   }
 
   public getRevueIdbyName(id: string) {
-    return this.http.get(`${this.apiURLlocal}/getRevueIdbyName/${id}`)
+    const url = `${this.apiURL}/getRevueIdbyName/${id}`;
+    console.log('getRevueIdbyName |  url = ' + url);
+    return this.http.get(url);
   }
 
   public createRevue(revue: Revue) {
-    return this.http.post(`${this.apiURLlocal}/createRevue`,revue);
-  } 
+    const url = `${this.apiURL}/createRevue`;
+    console.log('createRevue |  url = ' + url);
+    return this.http.post(url, revue);
+  }
 }
