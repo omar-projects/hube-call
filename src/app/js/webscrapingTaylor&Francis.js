@@ -45,23 +45,33 @@ const getResultsTaylorFrancis = async () => {
     } 
   });
 
-    // Création en bdd des revues
-  for(var i = 0 ; i < revueName.length ; i++) {
-    console.log(revueName[i]);
-    const rankCNRS = await getRankOfReviewCNRS(revueName[i]);
-    const rankHCERES = await getRankOfReviewHCERES(revueName[i]);
-    const rankFNEGE = await getRankOfReviewFNEGE(revueName[i]);
-    const isOpenAccess = await getOpenAccess(revueName[i]);
-    const sjr = await getSjrWidget(revueName[i]);
-    await axios.post(`${process.env.URL_API}/createRevue`,{
-      editeur: 2,
-      name: revueName[i],
-      rankFNEGE: rankFNEGE,
-      rankHCERES: rankHCERES,
-      rankCNRS: rankCNRS,
-      isOpenAccess: isOpenAccess,
-      sjr: sjr
-    });
+  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
+  const revuesSansDoublon = revues.filter(function(ele , pos) {
+    return revues.indexOf(ele) == pos;
+  });
+
+  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
+    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
+
+    if(response.status == 404) {
+      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
+
+      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
+      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
+      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
+      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
+      const sjr = await getSjrWidget(revuesSansDoublon[i]);
+
+      await axios.post(`${process.env.URL_API}/createRevue`,{
+        editeur: 1,
+        name: revuesSansDoublon[i],
+        rankFNEGE: rankFNEGE,
+        rankHCERES: rankHCERES,
+        rankCNRS: rankCNRS,
+        isOpenAccess: isOpenAccess,
+        sjr: sjr
+      });
+    }
   }
 
   // Création en bdd des calls

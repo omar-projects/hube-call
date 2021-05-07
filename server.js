@@ -119,7 +119,11 @@ const getRevueIdbyName = (request, response) => {
   const sql = 'SELECT id FROM "Revue" WHERE name = $1';
   pool.query(sql,[name], (error, results) => {
     parseError(error, sql);
-    response.status(200).json(results.rows[0].id);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0].id);
+    } else {
+      response.status(404).send("Revue not found");
+    }
   })
 }
 
