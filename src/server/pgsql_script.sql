@@ -45,8 +45,8 @@ CREATE TABLE "Editeur" (
 );
 
 
-ALTER TABLE "CallForPaper" ADD CONSTRAINT "CallForPaper_fk0" FOREIGN KEY ("fk_revue") REFERENCES "Revue"("id");
-ALTER TABLE "Revue" ADD CONSTRAINT "Revue_fk0" FOREIGN KEY ("fk_editeur") REFERENCES "Editeur"("id");
+ALTER TABLE "CallForPaper" ADD CONSTRAINT "CallForPaper_fk0" FOREIGN KEY ("fk_revue") REFERENCES "Revue"("id") ON DELETE CASCADE;
+ALTER TABLE "Revue" ADD CONSTRAINT "Revue_fk0" FOREIGN KEY ("fk_editeur") REFERENCES "Editeur"("id") ON DELETE CASCADE;
 
 
 -- -- Exemples, à supprimer plus tard
