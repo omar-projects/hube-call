@@ -8,6 +8,7 @@ const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
 const updateJournals = require('./src/app/js/updateJournals');
+const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 
 const app = express();
 
@@ -189,6 +190,7 @@ schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
   await getResultsElsevier();
   await getResultsEG();
+  await getResultsTaylorFrancis();
   await updateJournals();
 });
 
