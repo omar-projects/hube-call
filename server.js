@@ -122,7 +122,7 @@ const getRevueIdbyName = (request, response) => {
     if(results.rows[0]) {
       response.status(200).json(results.rows[0].id);
     } else {
-      response.status(404).send("Revue not found");
+      response.status(200).send("Not found");
     }
   })
 }

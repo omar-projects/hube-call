@@ -53,7 +53,8 @@ const getResultsTaylorFrancis = async () => {
   for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
     const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
 
-    if(response.status == 404) {
+    // Si la revue n'est pas trouvée, on l'ajoute
+    if(response.data == "Not found") {
       console.log(" -> création de la revue : " + revuesSansDoublon[i]);
 
       const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
