@@ -190,9 +190,8 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsElsevier();
   await getResultsEG();
   await updateJournals();
+  console.log("Cron tab is fisnish...")
 });
-
-
 
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
@@ -223,7 +222,7 @@ app.get('*', function(req, res) {
 
 // Handler error pour gérer les erreur de PostgresSQL
 function parseError(err, sqlString) {
-  console.log("nparseError:", sqlString);
+  console.error("Requete : ", sqlString);
 
   let errorCodes = {
     "08003": "connection_does_not_exist",
@@ -240,20 +239,15 @@ function parseError(err, sqlString) {
     "42P01": "undefined_table",
     "42P02": "undefined_parameter"
   };
-
-  if (err === undefined) {
-    console.warn("No errors returned from Postgres");
-  } else {
-    // console.log("ERROR Object.keys():", Object.keys(err))
+  
+  if(err) {
     if (err.message !== undefined) {
-      console.error("ERROR message:", err.message);
+      console.error("[ERROR] message : ", err.message);
     }
 
     if (err.code != 23505) {
-      console.error("Postgres error code:", err.code);
-
       if (errorCodes[err.code] !== undefined) {
-        console.error("Error code details:", errorCodes[err.code]);
+        console.error("[ERROR] Error code details : ", errorCodes[err.code]);
       }
     }
   }

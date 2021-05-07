@@ -23,6 +23,8 @@ const fetchData = async () => {
 const getResultsElsevier = async () => {
   
   for(let i = 0 ; i < tabUrl.length ; i++) {
+    console.log("Page en cours de scapping : " + tabUrl[i]);
+
     link = tabUrl[i];
     const $ = await fetchData();
 
@@ -61,11 +63,14 @@ const getResultsElsevier = async () => {
   
   // Création en bdd des revues
   for(var i = 0 ; i < revueName.length ; i++) {
+    console.log(" -> création de la revue : " + revueName[i]);
+
     const rankCNRS = await getRankOfReviewCNRS(revueName[i]);
     const rankHCERES = await getRankOfReviewHCERES(revueName[i]);
     const rankFNEGE = await getRankOfReviewFNEGE(revueName[i]);
     const isOpenAccess = await getOpenAccess(revueName[i]);
     const sjr = await getSjrWidget(revueName[i]);
+
     await axios.post(`${process.env.URL_API}/createRevue`,{
       editeur: 2,
       name: revueName[i],
@@ -79,6 +84,8 @@ const getResultsElsevier = async () => {
 
   // Création en bdd des calls
   for(var i = 0 ; i < title.length ; i++) {
+    console.log(" -> création du call for paper : " + title[i]);
+
     const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revueName[i]}`);
     
     await axios.post(`${process.env.URL_API}/createCall`,{
