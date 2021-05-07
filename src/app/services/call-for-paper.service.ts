@@ -8,32 +8,44 @@ import { CallForPaper } from '../models/callForPaper'
 // Service permettant la récupration des Calls via des appels API, ne pas oublié de changer l'url en fonction de l'environnement d'execution
 export class CallForPaperService {
 
-  apiURL: string = 'https://the-right-call.herokuapp.com/api';
+  apiURL: string = 'https://etud-kvm-oboub.leria-etud.univ-angers.fr/api';
   apiURLlocal: string = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
 
   public getCalls() {
-    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCall`);
+    const url = `${this.apiURL}/getCall`;
+    console.log('getCalls |  url = ' + url);
+    return this.http.get<CallForPaper[]>(url);
   }
 
   public getCallById(id: number) {
-    return this.http.get(`${this.apiURLlocal}/getCall/${id}`)
+    const url = `${this.apiURL}/getCall/${id}`;
+    console.log('getCallById |  url = ' + url);
+    return this.http.get(url);
   }
 
   public createCall(call: CallForPaper) {
-    return this.http.post(`${this.apiURLlocal}/createCall`,call);
-  }  
+    const url = `${this.apiURL}/createCall`;
+    console.log('createCall |  url = ' + url);
+    return this.http.post(url, call);
+  }
 
   public getCallsFilterHCERES() {
-    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterHCERES`);
+    const url = `${this.apiURL}/getCallFilterHCERES`;
+    console.log('getCallsFilterHCERES |  url = ' + url);
+    return this.http.get<CallForPaper[]>(url);
   }
-  
+
   public getCallsFilterCNRS() {
-    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterCNRS`);
+    const url = `${this.apiURL}/getCallFilterCNRS`;
+    console.log('getCallsFilterCNRS |  url = ' + url);
+    return this.http.get<CallForPaper[]>(url);
   }
 
   public getCallsFilterFNEGE() {
-    return this.http.get<CallForPaper[]>(`${this.apiURLlocal}/getCallFilterFNEGE`);
+    const url = `${this.apiURL}/getCallFilterFNEGE`;
+    console.log('getCallsFilterFNEGE |  url = ' + url);
+    return this.http.get<CallForPaper[]>(url);
   }
 }
