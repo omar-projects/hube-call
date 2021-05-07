@@ -2,3 +2,7 @@ label {
     display: flex;
     margin-bottom: 8px;
 }
+
+b {
+    margin-inline: 2px;
+}

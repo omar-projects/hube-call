@@ -8,6 +8,7 @@ const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
 const updateJournals = require('./src/app/js/updateJournals');
+const axios = require('axios');
 const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 
 const app = express();
@@ -47,7 +48,7 @@ const getCall = (request, response) => {
 //Get un call par Id
 const getCallbyId = (request, response) => {
   const id = parseInt(request.params.id);
-  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1'; 
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
   pool.query(sql,[id], (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -88,6 +89,15 @@ const getCallFilterFNEGE = (request, response) => {
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
+  })
+}
+
+// Supprimer tous les calls
+const deleteAllCalls = (request, response) => {
+  const sql = 'DELETE FROM "CallForPaper"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(201).send('All Calls For Paper deleted')
   })
 }
 
@@ -146,6 +156,15 @@ const updateOARevue = (request, response) => {
   })
 }
 
+// Supprimer toutes les revues
+const deleteAllRevues = (request, response) => {
+  const sql = 'DELETE FROM "Revue"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(201).send('All revues deleted')
+  })
+}
+
 //---------- Editeur ----------\\
 
 // Get toutes les revues
@@ -191,11 +210,17 @@ const createEditeur = (request, response) => {
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
+
+  // Suppression des calls
+  await axios.delete(`${process.env.URL_API}/call/deleteAll`);
+
+  //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
   await getResultsEG();
   await getResultsTaylorFrancis();
   await updateJournals();
-  console.log("Cron tab is fisnish...")
+
+  console.log("Cron tab is fisnished...")
 });
 
 // Association des appels API avec des routes
@@ -205,13 +230,15 @@ app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
+app.delete('/api/call/deleteAll', deleteAllCalls);
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
 app.get('/api/getRevue/:id',getRevuebyId);
 app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
 app.post('/api/createRevue',createRevue);
-app.put('/api/updateOARevue',updateOARevue); 
+app.put('/api/updateOARevue',updateOARevue);
+app.delete('/api/revue/deleteAll', deleteAllRevues);
 
 // Association des appels API avec des routes
 app.get('/api/getEditeur', getEditeur);
@@ -221,6 +248,7 @@ app.post('/api/createEditeur',createEditeur);
 
 
 // Route par défaut qui redirige vers l'index html
+// ** Il faut commenter ce code si l'on veut tester l'api rest en local **
 app.get('*', function(req, res) {
   res.sendfile('./dist/hube-call-app/index.html')
 })
@@ -244,7 +272,7 @@ function parseError(err, sqlString) {
     "42P01": "undefined_table",
     "42P02": "undefined_parameter"
   };
-  
+
   if(err) {
     if (err.message !== undefined) {
       console.error("[ERROR] message : ", err.message);

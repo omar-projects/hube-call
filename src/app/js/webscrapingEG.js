@@ -23,24 +23,24 @@ const regexDate = /(?:\d{1,2}[-/th|st|nd|rd\s]*)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|
 const title = new Array();
 const url = new Array();
 const deadlines = new Array();
-const revueName = new Array();
+const revues = new Array();
 const desc = new Array();
 
-const fetchData = async (Url) => {
-  const result = await axios.get(Url);
+const fetchData = async (url) => {
+  const result = await axios.get(url);
   return cheerio.load(result.data);
 };
 
 
 const getResultsEG = async () => {
-  for(let itemsite of siteUrl){
-    console.log("Page en cours de scapping : " + itemsite);
+  for(let itemsite of siteUrl) {
+    console.log("Page en cours de scrapping : " + itemsite);
 
     //Boolean true if this is the last page
     let isLastPage = false;
     //nbActPage for the url when we go on te next page
     let nbActPage = 0;
-    while(!isLastPage){
+    while(!isLastPage) {
       let $ = await fetchData(itemsite);
       isLastPage = true;
       //Récupérer tous les titres de la page
@@ -53,21 +53,18 @@ const getResultsEG = async () => {
       });
       //Récupérer toutes les revues de la page
       $('.news-grid__card-reference').each(function(i,elem) {
-        revueName.push($(elem).text().trim());
+        revues.push($(elem).text().trim());
       });
-
       //Récupérer toutes les descriptions de la page
       $('.news-grid__card-content').each(function(i,elem) {
         desc.push($(elem).text().trim());
       });
 
-      
-
       $('.pager__item--next').each(function(i,elem) {
         isLastPage = false;
         nbActPage ++;
         itemsite = itemsite+"&page="+nbActPage;
-      }); 
+      });
     }
 
     //Cherche les deadlines dans tous les Calls For Paper
@@ -92,38 +89,46 @@ const getResultsEG = async () => {
           }
         });
 
-        //console.log(deadline);
         deadlines.push(deadline);
       });
     }
   }
 
-  // Création en bdd des revues
-  for(var i = 0 ; i < revueName.length ; i++) {
-    console.log(" -> création de la revue : " + revueName[i]);
+  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
+  const revuesSansDoublon = revues.filter(function(ele , pos) {
+    return revues.indexOf(ele) == pos;
+  });
 
-    const rankCNRS = await getRankOfReviewCNRS(revueName[i]);
-    const rankHCERES = await getRankOfReviewHCERES(revueName[i]);
-    const rankFNEGE = await getRankOfReviewFNEGE(revueName[i]);
-    const isOpenAccess = await getOpenAccess(revueName[i]);
-    const sjr = await getSjrWidget(revueName[i]);
+  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
+    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
 
-    await axios.post(`${process.env.URL_API}/createRevue`,{
-      editeur: 1,
-      name: revueName[i],
-      rankFNEGE: rankFNEGE,
-      rankHCERES: rankHCERES,
-      rankCNRS: rankCNRS,
-      isOpenAccess: isOpenAccess,
-      sjr: sjr
-    });
+    // Si la revue n'est pas trouvée, on l'ajoute
+    if(response.data == "Not found") {
+      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
+
+      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
+      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
+      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
+      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
+      const sjr = await getSjrWidget(revuesSansDoublon[i]);
+
+      await axios.post(`${process.env.URL_API}/createRevue`,{
+        editeur: 1,
+        name: revuesSansDoublon[i],
+        rankFNEGE: rankFNEGE,
+        rankHCERES: rankHCERES,
+        rankCNRS: rankCNRS,
+        isOpenAccess: isOpenAccess,
+        sjr: sjr
+      });
+    }
   }
 
   // Création en bdd des calls
   for(var i = 0 ; i < title.length ; i++) {
     console.log(" -> création du call for paper : " + title[i]);
 
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revueName[i]}`);
+    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
     
     await axios.post(`${process.env.URL_API}/createCall`,{
       title: title[i],
