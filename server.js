@@ -34,7 +34,6 @@ const pool = new Pool({
 
 console.log("Connexion réussie à la base de données !");
 
-
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
