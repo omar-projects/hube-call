@@ -26,7 +26,7 @@ app.use(
 )
 
 // Start the app by listening on the default Heroku port
-app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 80);
 
 const pool = new Pool({
   connectionString: connectionString,
