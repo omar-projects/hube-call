@@ -12,8 +12,7 @@ const title = new Array();
 const url = new Array();
 const desc = new Array();
 const deadline = new Array();
-const revueName = new Array();
-
+const revues = new Array();
 
 const fetchData = async () => {
   const result = await axios.get(link);
@@ -24,7 +23,6 @@ const fetchData = async () => {
  * Méthode réalisant le xcrapping pour le site de l'éditeur Taylor & Francis 
  */
 const getResultsTaylorFrancis = async () => {
-
   
   const regExManagement = new RegExp("\d\*,\?1694,\d\*,\?");
   const $ = await fetchData();
@@ -35,7 +33,7 @@ const getResultsTaylorFrancis = async () => {
     // On restreind au call for paper concernant le management 
     if(sujet.match(regExManagement)){
       let item = $(element).find("header.article-header").find("h3").text();
-      revueName.push(item);
+      revues.push(item);
       item = $(element).find("span.article-header-subtitle").text();
       title.push(item);
       item = $(element).find("a").attr("href");
@@ -43,6 +41,16 @@ const getResultsTaylorFrancis = async () => {
       item = $(element).find("div.filtercpt__content").text();
       desc.push(item);
     } 
+  });
+
+  // Recherche la deadline selon l'url des call for paper récupérée plus tôt
+  url.forEach(async function(path) {
+    link = path;
+    const $ = await fetchData();
+    $('div .deadline__title').each(async function(index,elem) {
+      let item = $(elem).find("strong").text();
+      deadline.push(item);
+    });
   });
 
   // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
@@ -77,12 +85,12 @@ const getResultsTaylorFrancis = async () => {
 
   // Création en bdd des calls
   for(var i = 0 ; i < title.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revueName[i]}`);
+    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
     
     await axios.post(`${process.env.URL_API}/createCall`,{
       title: title[i],
       revue: response.data,
-      deadline: "Date not found",
+      deadline: deadline[i],
       desc: desc[i],
       url: url[i]
     });
