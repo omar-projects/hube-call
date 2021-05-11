@@ -72,7 +72,7 @@ const getResultsTaylorFrancis = async () => {
       const sjr = await getSjrWidget(revuesSansDoublon[i]);
 
       await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 1,
+        editeur: 3,
         name: revuesSansDoublon[i],
         rankFNEGE: rankFNEGE,
         rankHCERES: rankHCERES,
