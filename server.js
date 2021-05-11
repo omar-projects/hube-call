@@ -26,7 +26,7 @@ app.use(
 )
 
 // Start the app by listening on the default Heroku port
-app.listen(process.env.PORT || 80);
+app.listen(process.env.PORT || 8080);
 
 const pool = new Pool({
   connectionString: connectionString,
@@ -210,6 +210,7 @@ const createEditeur = (request, response) => {
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
+  const debut = new Date();
 
   // Suppression des calls
   await axios.delete(`${process.env.URL_API}/call/deleteAll`);
@@ -220,7 +221,9 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsTaylorFrancis();
   await updateJournals();
 
-  console.log("Cron tab is fisnished...")
+
+  const fin = new Date();
+  console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
 });
 
 // Association des appels API avec des routes
