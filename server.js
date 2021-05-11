@@ -35,7 +35,6 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
-getResultsTaylorFrancis();
 
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
@@ -212,9 +211,6 @@ const createEditeur = (request, response) => {
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
-
-  // Suppression des calls
-  await axios.delete(`${process.env.URL_API}/call/deleteAll`);
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
