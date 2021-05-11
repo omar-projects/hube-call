@@ -1,10 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const getRankOfReviewCNRS = require("./cnrs");
-const getRankOfReviewFNEGE = require("./fnege");
-const getRankOfReviewHCERES = require("./hceres");
-const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const enregistrementRevues = require('./enregistrements');
+const enregistrementCalls = require('./enregistrements');
 
 let link = "https://authorservices.taylorandfrancis.com/call-for-papers/";
 
@@ -20,7 +17,7 @@ const fetchData = async () => {
 };
 
 /**
- * Méthode réalisant le xcrapping pour le site de l'éditeur Taylor & Francis 
+ * Méthode réalisant le scrapping pour le site de l'éditeur Taylor & Francis 
  */
 const getResultsTaylorFrancis = async () => {
   
@@ -53,48 +50,11 @@ const getResultsTaylorFrancis = async () => {
     });
   });
 
-  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
-  const revuesSansDoublon = revues.filter(function(ele , pos) {
-    return revues.indexOf(ele) == pos;
-  });
+  // On enregistre les revues 
+  enregistrementRevues(3, revues);
 
-  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
-    // Si la revue n'est pas trouvée, on l'ajoute
-    if(response.data == "Not found") {
-      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
-
-      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
-      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
-      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
-      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-      const sjr = await getSjrWidget(revuesSansDoublon[i]);
-
-      await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 3,
-        name: revuesSansDoublon[i],
-        rankFNEGE: rankFNEGE,
-        rankHCERES: rankHCERES,
-        rankCNRS: rankCNRS,
-        isOpenAccess: isOpenAccess,
-        sjr: sjr
-      });
-    }
-  }
-
-  // Création en bdd des calls
-  for(var i = 0 ; i < title.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-    
-    await axios.post(`${process.env.URL_API}/createCall`,{
-      title: title[i],
-      revue: response.data,
-      deadline: deadline[i],
-      desc: desc[i],
-      url: url[i]
-    });
-  }
+  // On enregistre les calls
+  enregistrementCalls(title, url, deadline, desc, revues);
 
 };
 

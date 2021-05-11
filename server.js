@@ -7,9 +7,10 @@ const bodyParser = require('body-parser');
 const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
+const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 const updateJournals = require('./src/app/js/updateJournals');
 const axios = require('axios');
-const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
+
 
 const app = express();
 
@@ -26,7 +27,7 @@ app.use(
 )
 
 // Start the app by listening on the default Heroku port
-app.listen(process.env.PORT || 80);
+app.listen(process.env.PORT || 8080);
 
 const pool = new Pool({
   connectionString: connectionString,
@@ -34,6 +35,7 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
+getResultsTaylorFrancis();
 
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
