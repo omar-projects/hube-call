@@ -16,7 +16,6 @@ export class GetRevueNameByIdPipe implements PipeTransform {
   }
 
   getRevueNameById(id: number) {
-    console.info("---getRevueNameById---");
     return this.revueService.getRevueById(id).pipe(
       map((value) => value[0].name)
     )
