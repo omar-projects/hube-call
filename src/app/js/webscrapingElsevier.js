@@ -57,7 +57,7 @@ const getResultsElsevier = async () => {
   }
   
   // On enregistre les revues 
-  enregistrementRevues(1, revues);
+  enregistrementRevues(2, revues);
 
   // On enregistre les calls
   enregistrementCalls(title, url, deadline, desc, revues);

@@ -92,7 +92,7 @@ const getResultsEG = async () => {
   }
 
   // On enregistre les revues 
-  enregistrementRevues(2, revues);
+  enregistrementRevues(1, revues);
 
   // On enregistre les calls
   enregistrementCalls(title, url, deadline, desc, revues);

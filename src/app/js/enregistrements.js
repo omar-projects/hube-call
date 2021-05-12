@@ -46,7 +46,7 @@ module.exports = enregistrementRevues;
 /**
  * Méthode d'enregistrement des calls - prend des tableaux d'infos sur les calls et la revue en lien
  */
- const enregistrementCalls = async (title, url, deadline, desc, revues) => {
+const enregistrementCalls = async (title, url, deadlines, desc, revues) => {
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
@@ -54,7 +54,7 @@ module.exports = enregistrementRevues;
         await axios.post(`${process.env.URL_API}/createCall`,{
             title: title[i],
             revue: response.data,
-            deadline: deadline[i],
+            deadline: deadlines[i],
             desc: desc[i],
             url: url[i]
         });
