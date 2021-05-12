@@ -50,11 +50,12 @@ const enregistrementCalls = async (title, url, deadlines, desc, revues) => {
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-        
+        var date_soumission = deadlines[i];
+        console.log(date_soumission);
         await axios.post(`${process.env.URL_API}/createCall`,{
             title: title[i],
             revue: response.data,
-            deadline: deadlines[i],
+            deadline: date_soumission,
             desc: desc[i],
             url: url[i]
         });

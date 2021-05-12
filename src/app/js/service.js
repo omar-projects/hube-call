@@ -1,8 +1,14 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 
-const getDate = async (editeur, deadline) => {
-    let ddate;
+/**
+ * Permet de recupéré une date conforme pour l'insertion de la deadline en base 
+ * @param {Numéro de l'editeur en base} editeur 
+ * @param {Deadline en cours de récupération} deadline 
+ * @returns 
+ */
+const getDate = function (editeur, deadline) {
+    var ddate = new String('');
     const formatDateTF = new RegExp("\d\*\s\?\w\*\s\?\d\*");
     switch(editeur){
         case 1 :
@@ -25,6 +31,11 @@ const getDate = async (editeur, deadline) => {
 
 module.exports = getDate;
 
+/**
+ * Retourne le numéro de mois selon son nom (en Anglais)
+ * @param {Mois sous forme de String} month 
+ * @returns 
+ */
 const getMonth = function(month) {
     switch(month){
         case "January" : 
