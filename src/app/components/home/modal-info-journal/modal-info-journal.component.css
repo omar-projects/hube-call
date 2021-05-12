@@ -4,5 +4,10 @@ label {
 }
 
 b {
-    margin-inline: 2px;
+    margin-inline: 4px;
+}
+
+.icon {
+    font-size: 20px;
+    color: red;
 }

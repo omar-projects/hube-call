@@ -8,7 +8,7 @@ export class Revue {
 
     rankFNEGE: number;
     
-    rankHCERES: number;
+    rankHCERES: string;
 
     rankCNRS: number;
 
