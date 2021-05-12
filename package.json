@@ -1,15 +1,15 @@
 {
   "name": "hube-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
-    "start": "node server.js",
+    "start": "node --unhandled-rejections=strict server.js",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "postinstall": "ng build --aot --prod",
-    "local": "ng build && node server.js"
+    "local": "ng build && node --unhandled-rejections=strict server.js"
   },
   "private": true,
   "dependencies": {

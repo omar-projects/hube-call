@@ -8,6 +8,8 @@ const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
 const updateJournals = require('./src/app/js/updateJournals');
+const axios = require('axios');
+const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 
 const app = express();
 
@@ -33,7 +35,6 @@ const pool = new Pool({
 
 console.log("Connexion réussie à la base de données !");
 
-
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
@@ -47,7 +48,7 @@ const getCall = (request, response) => {
 //Get un call par Id
 const getCallbyId = (request, response) => {
   const id = parseInt(request.params.id);
-  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1'; 
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
   pool.query(sql,[id], (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -91,6 +92,15 @@ const getCallFilterFNEGE = (request, response) => {
   })
 }
 
+// Supprimer tous les calls
+const deleteAllCalls = (request, response) => {
+  const sql = 'DELETE FROM "CallForPaper"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(201).send('All Calls For Paper deleted')
+  })
+}
+
 //---------- Revue ----------\\
 
 // Get toutes les revues
@@ -118,7 +128,11 @@ const getRevueIdbyName = (request, response) => {
   const sql = 'SELECT id FROM "Revue" WHERE name = $1';
   pool.query(sql,[name], (error, results) => {
     parseError(error, sql);
-    response.status(200).json(results.rows[0].id);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0].id);
+    } else {
+      response.status(200).send("Not found");
+    }
   })
 }
 
@@ -139,6 +153,15 @@ const updateOARevue = (request, response) => {
   pool.query(sql, [isOpenAccess, id], (error, results) => {
     parseError(error, sql);
     response.status(201).send(`Revue updated`)
+  })
+}
+
+// Supprimer toutes les revues
+const deleteAllRevues = (request, response) => {
+  const sql = 'DELETE FROM "Revue"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(201).send('All revues deleted')
   })
 }
 
@@ -187,12 +210,21 @@ const createEditeur = (request, response) => {
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
+  const debut = new Date();
+
+  // Suppression des calls
+  await axios.delete(`${process.env.URL_API}/call/deleteAll`);
+
+  //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
   await getResultsEG();
+  await getResultsTaylorFrancis();
   await updateJournals();
+
+
+  const fin = new Date();
+  console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
 });
-
-
 
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
@@ -201,13 +233,15 @@ app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
+app.delete('/api/call/deleteAll', deleteAllCalls);
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
 app.get('/api/getRevue/:id',getRevuebyId);
 app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
 app.post('/api/createRevue',createRevue);
-app.put('/api/updateOARevue',updateOARevue); 
+app.put('/api/updateOARevue',updateOARevue);
+app.delete('/api/revue/deleteAll', deleteAllRevues);
 
 // Association des appels API avec des routes
 app.get('/api/getEditeur', getEditeur);
@@ -217,13 +251,14 @@ app.post('/api/createEditeur',createEditeur);
 
 
 // Route par défaut qui redirige vers l'index html
+// ** Il faut commenter ce code si l'on veut tester l'api rest en local **
 app.get('*', function(req, res) {
   res.sendfile('./dist/hube-call-app/index.html')
 })
 
 // Handler error pour gérer les erreur de PostgresSQL
 function parseError(err, sqlString) {
-  console.log("nparseError:", sqlString);
+  console.error("Requete : ", sqlString);
 
   let errorCodes = {
     "08003": "connection_does_not_exist",
@@ -241,19 +276,14 @@ function parseError(err, sqlString) {
     "42P02": "undefined_parameter"
   };
 
-  if (err === undefined) {
-    console.warn("No errors returned from Postgres");
-  } else {
-    // console.log("ERROR Object.keys():", Object.keys(err))
+  if(err) {
     if (err.message !== undefined) {
-      console.error("ERROR message:", err.message);
+      console.error("[ERROR] message : ", err.message);
     }
 
     if (err.code != 23505) {
-      console.error("Postgres error code:", err.code);
-
       if (errorCodes[err.code] !== undefined) {
-        console.error("Error code details:", errorCodes[err.code]);
+        console.error("[ERROR] Error code details : ", errorCodes[err.code]);
       }
     }
   }

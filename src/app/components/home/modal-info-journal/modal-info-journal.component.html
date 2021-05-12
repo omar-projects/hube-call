@@ -2,11 +2,30 @@
 
 <div mat-dialog-content>
   <label><b>Name :</b> {{ data.revue.name }}</label>
-  <label><b>Rank FNEGE :</b> {{ data.revue.rankFNEGE }}</label>
-  <label><b>Rank HCERES :</b> {{ data.revue.rankHCERES }}</label>
-  <label><b>Rank CNRS :</b> {{ data.revue.rankCNRS }}</label>
+  <label>
+    <b>Rank FNEGE :</b> 
+    <span *ngIf="data.revue.rankFNEGE; else empty_rank">
+      {{ data.revue.rankFNEGE }}
+    </span>
+  </label>
+  <label>
+    <b>Rank HCERES :</b>
+    <span *ngIf="data.revue.rankHCERES && data.revue.rankHCERES !== ' '; else empty_rank">
+      {{ data.revue.rankHCERES }}
+    </span>
+  </label>
+  <label>
+    <b>Rank CNRS :</b>
+    <span *ngIf="data.revue.rankCNRS; else empty_rank">
+      {{ data.revue.rankCNRS }}
+    </span>
+  </label>
   <label><b>Is Open Source :</b> {{ data.openAccess }}</label>
 </div>
+
+<ng-template #empty_rank>
+  <span class="material-icons icon">close</span>
+</ng-template>
 
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()" cdkFocusInitial>Close</button>

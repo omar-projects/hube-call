@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Revue } from '../models/revue';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +9,7 @@ import { Revue } from '../models/revue';
 // Service permettant la récupration des Revues via des appels API, ne pas oublié de changer l'url en fonction de l'environnement d'execution
 export class RevueService {
 
-  apiURL: string = 'https://etud-kvm-oboub.leria-etud.univ-angers.fr/api';
-  apiURLlocal: string = 'http://localhost:8080/api';
+  apiURL: string = environment.apiURL;
 
   constructor(private http: HttpClient) {}
 

@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { GetRevueNameByIdPipe } from './services/pipe/get-revue-name-by-id.pipe';
 import { GetWidgetSjrPipe } from './services/pipe/get-widget-sjr.pipe';
 import { ModalInfoJournalComponent } from './components/home/modal-info-journal/modal-info-journal.component';
+import { RechercheAvanceeComponent } from './components/recherche-avancee/recherche-avancee.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { ModalInfoJournalComponent } from './components/home/modal-info-journal/
     HomeComponent,
     MenuComponent,
     ModalInfoJournalComponent,
+    RechercheAvanceeComponent,
     GetRevueNameByIdPipe,
     GetWidgetSjrPipe
   ],

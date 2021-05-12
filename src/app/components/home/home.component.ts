@@ -18,7 +18,7 @@ import { ModalInfoJournalComponent } from './modal-info-journal/modal-info-journ
 export class HomeComponent implements OnInit {
 
   // Nom des colonnes du tableau
-  displayedColumns: string[] = ['title', 'journal', 'description','link','deadline','SJR'];
+  displayedColumns: string[] = ['title', 'journal', 'description','deadline','SJR'];
 
   // Tableau de données lié au tableau, ici les Calls for Paper, déclaré à un tableau vide
   dataSource = new MatTableDataSource([]);
@@ -50,6 +50,7 @@ export class HomeComponent implements OnInit {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     });
+    
     this.revueService.getRevues().subscribe((res => {
       this.revueList = res;
     }));
@@ -63,9 +64,6 @@ export class HomeComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       });
-      this.revueService.getRevues().subscribe((res => {
-        this.revueList = res;
-      }));
     }
     else if (this.checkoutForm.value.rank == "CNRS"){
       this.callService.getCallsFilterCNRS().subscribe((res)=>{
@@ -73,9 +71,6 @@ export class HomeComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       });
-      this.revueService.getRevues().subscribe((res => {
-        this.revueList = res;
-      }));
     }
     else if (this.checkoutForm.value.rank == "HCERES"){
       this.callService.getCallsFilterHCERES().subscribe((res)=>{
@@ -83,9 +78,6 @@ export class HomeComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       });
-      this.revueService.getRevues().subscribe((res => {
-        this.revueList = res;
-      }));
     }
     else if(this.checkoutForm.value.rank == "FNEGE"){
       this.callService.getCallsFilterFNEGE().subscribe((res)=>{
@@ -93,11 +85,11 @@ export class HomeComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       });
-      this.revueService.getRevues().subscribe((res => {
-        this.revueList = res;
-      }));
     }
-    
+
+    this.revueService.getRevues().subscribe((res => {
+      this.revueList = res;
+    }));
   }
 
   // Méthode d'ouverture du Dialog
@@ -107,8 +99,8 @@ export class HomeComponent implements OnInit {
       this.openAccess = "Yes";
     else
       this.openAccess = "No";
+
     this.dialog.open(ModalInfoJournalComponent, {
-      width: '300px',
       data: {revue: revue, openAccess: this.openAccess}
     });
   }
@@ -135,7 +127,6 @@ export class HomeComponent implements OnInit {
 
   // Get le nom d'une revue par son ID
   getRevueNameById(id: number) {
-    console.info("---getRevueNameById---");
     return this.revueService.getRevueById(id).pipe(
       map((value) => value[0].name)
     )
@@ -143,7 +134,6 @@ export class HomeComponent implements OnInit {
 
   // Get le widget de la revue en fonction de son id
   getRevueWidgetById(id: number) {
-    console.info("---getRevueWidgetById---");
     return this.revueService.getRevueById(id).pipe(
       map((value) => value[0].sjr)
     )

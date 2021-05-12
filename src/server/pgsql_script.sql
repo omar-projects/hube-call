@@ -45,14 +45,15 @@ CREATE TABLE "Editeur" (
 );
 
 
-ALTER TABLE "CallForPaper" ADD CONSTRAINT "CallForPaper_fk0" FOREIGN KEY ("fk_revue") REFERENCES "Revue"("id");
-ALTER TABLE "Revue" ADD CONSTRAINT "Revue_fk0" FOREIGN KEY ("fk_editeur") REFERENCES "Editeur"("id");
+ALTER TABLE "CallForPaper" ADD CONSTRAINT "CallForPaper_fk0" FOREIGN KEY ("fk_revue") REFERENCES "Revue"("id") ON DELETE CASCADE;
+ALTER TABLE "Revue" ADD CONSTRAINT "Revue_fk0" FOREIGN KEY ("fk_editeur") REFERENCES "Editeur"("id") ON DELETE CASCADE;
 
 
 -- -- Exemples, à supprimer plus tard
 
 INSERT INTO "Editeur" VALUES (DEFAULT,'Emerald Group');
 INSERT INTO "Editeur" VALUES (DEFAULT,'Elsevier');
+INSERT INTO "Editeur" VALUES (DEFAULT,'Taylor & Francis');
 -- INSERT INTO "Revue" VALUES (DEFAULT,1,'RevueTest',54,23,47);
 -- INSERT INTO "CallForPaper" VALUES (DEFAULT,'CallForPaperTest',1,'30/06/2020','Ceci est la description test','http://www.testURL.com');
 -- INSERT INTO "CallForPaper" VALUES (DEFAULT,'CallForPaperTest2',1,'30/06/2020','Ceci est la description test 2','http://www.testURL2.com');

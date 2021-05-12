@@ -14,7 +14,6 @@ export class GetWidgetSjrPipe implements PipeTransform {
   }
 
   getRevueWidgetById(id: number) {
-    console.info("---getRevueWidgetById---");
     return this.revueService.getRevueById(id).pipe(
       map((value) => value[0].sjr)
     )
