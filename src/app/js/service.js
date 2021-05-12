@@ -1,6 +1,3 @@
-const cheerio = require("cheerio");
-const axios = require("axios");
-
 /**
  * Permet de recupéré une date conforme pour l'insertion de la deadline en base 
  * @param {Numéro de l'editeur en base} editeur 
