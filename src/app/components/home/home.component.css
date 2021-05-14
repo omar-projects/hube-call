@@ -83,11 +83,8 @@ td {
 }
 
 #sjr:hover {
+  position: relative;
   transform: scale(1.5);
   border: none;
-  z-index: 100;
-}
-
-.mat-header-cell {
-  background-color: transparent;
+  z-index: 200;
 }
