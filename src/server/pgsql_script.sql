@@ -7,7 +7,7 @@ CREATE TABLE "CallForPaper" (
 	"id" serial NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"fk_revue" bigint NOT NULL,
-	"deadline" varchar(255),
+	"deadline" DATE	,
 	"desc" text NOT NULL,
 	"url" varchar(255) NOT NULL,
 	CONSTRAINT "CallForPaper_pk" PRIMARY KEY ("id"),

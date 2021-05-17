@@ -7,9 +7,11 @@ const bodyParser = require('body-parser');
 const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
+const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 const updateJournals = require('./src/app/js/updateJournals');
 const axios = require('axios');
-const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
+const { request } = require('http');
+
 
 const app = express();
 
@@ -52,6 +54,41 @@ const getCallbyId = (request, response) => {
   pool.query(sql,[id], (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
+  })
+}
+
+//Get deadline d'un call par Id
+const getDeadlineCallbyId = (request, response) => {
+  const id = parseInt(request.params.id);
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
+  pool.query(sql,[id], (error, results) => {
+    parseError(error, sql);
+    response.status(200).send(results.rows[0].deadline)
+  })
+}
+
+// Le Call existe déjà
+const getCallbyTitle = (request, response) => {
+  const title = request.query.title;
+  console.log(title);
+  const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
+  pool.query(sql,[title], (error, results) => {
+    parseError(error, sql);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0].id);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+// Mise à jour de la deadline 
+const updateDeadlineById = (request, response) => {
+  const {id, newDate} = parseInt(request.params.id);
+  const sql = 'UPDATE "CallForPaper" SET deadline = $2 WHERE Id = $1';
+  pool.query(sql,[id, newDate], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Deadline of Call For Paper - UPDATE`);
   })
 }
 
@@ -208,12 +245,9 @@ const createEditeur = (request, response) => {
 }
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('0 0 * * *', async () => {
+schedule.scheduleJob('28 11 * * *', async () => {
   console.log("Cron tab is running...")
   const debut = new Date();
-
-  // Suppression des calls
-  await axios.delete(`${process.env.URL_API}/call/deleteAll`);
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
@@ -229,11 +263,15 @@ schedule.scheduleJob('0 0 * * *', async () => {
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
+app.get('/api/getCallbyTitle',getCallbyTitle);
+app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
+app.post('/api/updateDeadlineById',updateDeadlineById);
 app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
+
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);

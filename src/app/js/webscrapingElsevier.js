@@ -1,10 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const getRankOfReviewCNRS = require("./cnrs");
-const getRankOfReviewFNEGE = require("./fnege");
-const getRankOfReviewHCERES = require("./hceres");
-const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
 let tabUrl = [
   "https://www.journals.elsevier.com/telecommunications-policy/call-for-papers", 
@@ -55,54 +52,19 @@ const getResultsElsevier = async () => {
       } else {
         limit = "deadline not found";
       }
-      deadlines.push(limit);
+      // Gestion de la récupération sous un bon format de la date de soumission
+      let dateDeadline = getDate(limit)
+      if(dateDeadline != null){
+        deadlines.push(dateDeadline);
+      } else {
+        deadlines.push(undefined)
+      }
     });
   }
   
-  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
-  const revuesSansDoublon = revues.filter(function(ele , pos){
-    return revues.indexOf(ele) == pos;
-  });
+  // On enregistre les revues et les calls
+  insertRevuesAndCalls(2, revues, title, url, deadlines, desc);
 
-  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
-    // Si la revue n'est pas trouvée, on l'ajoute
-    if(response.data == "Not found") {
-      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
-
-      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
-      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
-      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
-      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-      const sjr = await getSjrWidget(revuesSansDoublon[i]);
-
-      await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 2,
-        name: revuesSansDoublon[i],
-        rankFNEGE: rankFNEGE,
-        rankHCERES: rankHCERES,
-        rankCNRS: rankCNRS,
-        isOpenAccess: isOpenAccess,
-        sjr: sjr
-      });
-    }
-  }
-
-  // Création en bdd des calls
-  for(var i = 0 ; i < title.length ; i++) {
-    console.log(" -> création du call for paper : " + title[i]);
-
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-    
-    await axios.post(`${process.env.URL_API}/createCall`,{
-      title: title[i],
-      revue: response.data,
-      deadline: deadlines[i],
-      desc: desc[i],
-      url: url[i]
-    });
-  }
 };
 
 module.exports = getResultsElsevier;
