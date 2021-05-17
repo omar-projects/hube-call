@@ -9,27 +9,39 @@
         <input matInput (keyup)="applyFilter($event)" placeholder="Ex. management">
     </mat-form-field>
 
-    <form id="formFiltre" [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
-
-        <span>
-            <input id="none" type="radio" value='None' formControlName="rank">
-            <label for="none">None</label>
-        </span>
-        <span>
-            <input id="cnrs" type="radio" value='CNRS' formControlName="rank">
-            <label for="cnrs">CNRS</label>
-        </span>
-        <span>
-            <input id="fnege" type="radio" value='FNEGE' formControlName="rank">
-            <label for="fnege">FNEGE</label>
-        </span>
-        <span>
-            <input id="hceres" type="radio" value='HCERES' formControlName="rank">
-            <label for="hceres">HCERES</label>
-        </span>
-
-        <button class="btn" type="submit">Filter by rank</button>
+    <form class="quickSearchForm" [formGroup]="checkoutForm" (ngSubmit)="onSubmitQuickSearch()">
+        <div class="radioGroupRank">
+            <strong style="margin-right: 10px;">Rank :</strong>
+            <span>
+                <input id="none" type="radio" value='None' formControlName="rank">
+                <label for="none">None</label>
+            </span>
+            <span>
+                <input id="cnrs" type="radio" value='CNRS' formControlName="rank">
+                <label for="cnrs">CNRS</label>
+            </span>
+            <span>
+                <input id="fnege" type="radio" value='FNEGE' formControlName="rank">
+                <label for="fnege">FNEGE</label>
+            </span>
+            <span>
+                <input id="hceres" type="radio" value='HCERES' formControlName="rank">
+                <label for="hceres">HCERES</label>
+            </span>
+        </div>
     
+        <div>
+            <strong style="margin-right: 10px;">Publisher :</strong>
+            <select name="editeurs" formControlName="editeur" [ngModel]="'all'">
+                <option value="all" selected>All</option>
+                <option *ngFor="let editeur of editeurList" value="{{ editeur.id }}">{{ editeur.name }}</option>
+            </select>
+        </div>
+    
+        <button class="btn" type="submit">
+            Search
+            <span class="material-icons icon">search</span>
+        </button>
     </form>
 
     <table mat-table class="mat-elevation-z8" [dataSource]="dataSource" matSort>
@@ -40,7 +52,7 @@
                 {{ item.title }}
                 <div>
                     <a mat-button class="btn-details" href="{{ item.url }}" target="_blank">
-                        View details<span class="material-icons icon" style="margin-left: 6px;">visibility</span>
+                        View details<span class="material-icons icon">visibility</span>
                     </a>
                 </div>
             </td>
