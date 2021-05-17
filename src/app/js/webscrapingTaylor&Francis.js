@@ -22,6 +22,7 @@ const fetchData = async (url) => {
 const getResultsTaylorFrancis = async () => {
   
   const regExManagement = new RegExp("\d\*,\?1694,\d\*,\?");
+  const regExTourism = new RegExp("\d\*,\?1715,\d\*,\?");
   const $ = await fetchData(urlTaylorFrancis);
   
   // On parcours tous les div concernant les call for papers
