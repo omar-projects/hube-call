@@ -22,13 +22,14 @@ const fetchData = async (url) => {
 const getResultsTaylorFrancis = async () => {
   
   const regExManagement = new RegExp("\d\*,\?1694,\d\*,\?");
+  const regExTourism = new RegExp("\d\*,\?1715,\d\*,\?");
   const $ = await fetchData(urlTaylorFrancis);
   
   // On parcours tous les div concernant les call for papers
   $("div .filtercpt__article").each((index, element) => {
     let sujet = $(element).attr('data-subjectareas');
     // On restreind au call for paper concernant le management 
-    if(sujet.match(regExManagement)){
+    if(sujet.match(regExManagement) || sujet.match(regExTourism)){
       let item = $(element).find("header.article-header").find("h3").text();
       revues.push(item);
       item = $(element).find("span.article-header-subtitle").text();
