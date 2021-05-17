@@ -56,7 +56,7 @@
             <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="deadline">
+        <ng-container matColumnDef="deadline" class="deadline_cell">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Deadline </th>
             <td mat-cell *matCellDef="let item" >
                 <span *ngIf="item.deadline !== null; else empty_deadline">{{ item.deadline | date :'yyyy-MM-dd' }}</span>
