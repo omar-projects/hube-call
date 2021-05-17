@@ -10,6 +10,7 @@ const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
 const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 const updateJournals = require('./src/app/js/updateJournals');
 const axios = require('axios');
+const { request } = require('http');
 
 
 const app = express();
@@ -54,6 +55,36 @@ const getCallbyId = (request, response) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
   })
+}
+
+//Get deadline d'un call par Id
+const getDeadlineCallbyId = (request, response) => {
+  const id = parseInt(request.params.id);
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
+  pool.query(sql,[id], (error, results) => {
+    parseError(error, sql);
+    response.status(200).send(results.rows[0].deadline)
+  })
+}
+
+// Le Call existe déjà
+const getCallbyTitle = (request, response) => {
+  const title = request.query.title;
+  console.log(title);
+  const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
+  pool.query(sql,[title], (error, results) => {
+    parseError(error, sql);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0].id);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+// Mise à jour de la deadline 
+const updateDeadlineById = () => {
+  
 }
 
 // Créer un call
@@ -224,11 +255,14 @@ schedule.scheduleJob('0 0 * * *', async () => {
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
+app.get('/api/getCallbyTitle',getCallbyTitle);
+app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
 app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
+
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);

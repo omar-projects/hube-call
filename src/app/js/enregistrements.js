@@ -1,4 +1,3 @@
-const cheerio = require("cheerio");
 const axios = require("axios");
 const getRankOfReviewCNRS = require("./cnrs");
 const getRankOfReviewFNEGE = require("./fnege");
@@ -6,18 +5,25 @@ const getRankOfReviewHCERES = require("./hceres");
 const getOpenAccess = require('./openaccess');
 const getSjrWidget = require('./sjrWidget');
 
+
 /**
- * Méthode d'enregistrement des revues - prend un tableau de revues et un editeur en paramètre
+ * Méthode d'enregistrement des revues et des calls 
+ * @param {Numéro de l'éditeur des revues} editeur 
+ * @param {Titres des calls} title 
+ * @param {urls des calls } url 
+ * @param {deadlines des calls} deadlines 
+ * @param {descriptions des calls} desc 
+ * @param {Les revues trouvées par le scrapping} revues 
  */
-const enregistrementRevues = async (editeur ,revues) => {
+const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, desc) => {
     // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
     const revuesSansDoublon = revues.filter(function(ele , pos) {
         return revues.indexOf(ele) == pos;
     });
 
-    for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
+    for(var i = 0 ; i < revuesSansDoublon.length ; i++) { 
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
+        
         // Si la revue n'est pas trouvée, on l'ajoute
         if(response.data == "Not found") {
             console.log(" -> création de la revue : " + revuesSansDoublon[i]);
@@ -29,7 +35,7 @@ const enregistrementRevues = async (editeur ,revues) => {
             const sjr = await getSjrWidget(revuesSansDoublon[i]);
 
             await axios.post(`${process.env.URL_API}/createRevue`,{
-                editeur: editeur,
+                editeur: numEditeur,
                 name: revuesSansDoublon[i],
                 rankFNEGE: rankFNEGE,
                 rankHCERES: rankHCERES,
@@ -39,27 +45,32 @@ const enregistrementRevues = async (editeur ,revues) => {
             });
         }
     }
-};
-
-module.exports = enregistrementRevues;
-
-/**
- * Méthode d'enregistrement des calls - prend des tableaux d'infos sur les calls et la revue en lien
- */
-const enregistrementCalls = async (title, url, deadlines, desc, revues) => {
+    console.log("----------Insert Calls---------")
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
+        var encodeTitle = encodeURI(title[i]);
+        const alreadyExist = await axios.get(`${process.env.URL_API}/getCallbyTitle?title=${encodeTitle}`);
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-        var date_soumission = deadlines[i];
-        console.log(date_soumission);
-        await axios.post(`${process.env.URL_API}/createCall`,{
-            title: title[i],
-            revue: response.data,
-            deadline: date_soumission,
-            desc: desc[i],
-            url: url[i]
-        });
+
+        if(alreadyExist.data == "Not found") {
+            await axios.post(`${process.env.URL_API}/createCall`,{
+                title: title[i],
+                revue: response.data,
+                deadline: deadlines[i],
+                desc: desc[i],
+                url: url[i]
+            });
+        } else {
+            const ddBase = await axios.get(`${process.env.URL_API}/getDeadlineCallbyId/${alreadyExist.data}`);
+            var currDeadline = new Date(deadlines[i]);
+            var baseDeadline = new Date(ddBase.data);
+            console.log(alreadyExist.data+" - "+title[i]+"             :             "+currDeadline+"      =     "+baseDeadline)
+            if( currDeadline.getTime() === baseDeadline.getTime()){
+                console.log("Same date")
+            }
+        }
+        
     }
 };
 
-module.exports = enregistrementCalls;
+module.exports = insertRevuesAndCalls;

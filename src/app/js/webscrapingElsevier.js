@@ -1,7 +1,6 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const enregistrementRevues = require('./enregistrements');
-const enregistrementCalls = require('./enregistrements');
+const insertRevuesAndCalls = require('./enregistrements');
 
 let tabUrl = [
   "https://www.journals.elsevier.com/telecommunications-policy/call-for-papers", 
@@ -56,11 +55,8 @@ const getResultsElsevier = async () => {
     });
   }
   
-  // On enregistre les revues 
-  enregistrementRevues(2, revues);
-
-  // On enregistre les calls
-  enregistrementCalls(title, url, deadline, desc, revues);
+  // On enregistre les revues et les calls
+  insertRevuesAndCalls(2, revues, title, url, deadline, desc);
 
 };
 

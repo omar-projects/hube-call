@@ -1,7 +1,6 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const enregistrementRevues = require('./enregistrements');
-const enregistrementCalls = require('./enregistrements');
+const insertRevuesAndCalls = require('./enregistrements');
 const getDate = require('./service');
 
 let link = "https://authorservices.taylorandfrancis.com/call-for-papers/";
@@ -47,15 +46,13 @@ const getResultsTaylorFrancis = async () => {
     const $ = await fetchData();
     $('div .deadline__title').each(async function(index,elem) {
       let item = $(elem).find("strong").text();
-      deadlines.push(getDate(3, item));
+      deadlines.push(getDate(item));
     });
   });
-
-  // On enregistre les revues 
-  enregistrementRevues(3, revues);
-
-  // On enregistre les calls
-  enregistrementCalls(title, url, deadlines, desc, revues);
+  console.log("Lancement de l'enregistrement des revues")
+  
+  // On enregistre les revues et les calls
+  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc);
 
 };
 

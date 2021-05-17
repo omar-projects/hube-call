@@ -11,7 +11,7 @@ const getOpenAccess = async keyword => {
     await page.goto(url);
     await page.type('input#publication_title-auto', keyword);
     await page.click('input.ep_form_action_button');
-    await page.waitFor(1000);
+    await page.waitFor(5000);
     const result = await page.evaluate(() => {
       if(document.querySelector("div#ep_publisher_policy_tabs_panel_1 > p") != null) {
         let openAccessText = document.querySelector("div#ep_publisher_policy_tabs_panel_1 > p").innerText;

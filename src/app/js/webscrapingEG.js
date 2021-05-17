@@ -1,8 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 require('dotenv').config();
-const enregistrementRevues = require('./enregistrements');
-const enregistrementCalls = require('./enregistrements');
+const insertRevuesAndCalls = require('./enregistrements');
 
 let siteUrl = [
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40162",
@@ -91,11 +90,8 @@ const getResultsEG = async () => {
     }
   }
 
-  // On enregistre les revues 
-  enregistrementRevues(1, revues);
-
-  // On enregistre les calls
-  enregistrementCalls(title, url, deadline, desc, revues);
+  // On enregistre les revues et les calls 
+  insertRevuesAndCalls(1, revues, title, url, deadline, desc);
   
 };
 
