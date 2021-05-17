@@ -29,7 +29,7 @@ const getResultsTaylorFrancis = async () => {
   $("div .filtercpt__article").each((index, element) => {
     let sujet = $(element).attr('data-subjectareas');
     // On restreind au call for paper concernant le management 
-    if(sujet.match(regExManagement)){
+    if(sujet.match(regExManagement) || sujet.match(regExTourism)){
       let item = $(element).find("header.article-header").find("h3").text();
       revues.push(item);
       item = $(element).find("span.article-header-subtitle").text();
