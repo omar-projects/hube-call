@@ -247,6 +247,7 @@ const createEditeur = (request, response) => {
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('28 11 * * *', async () => {
   console.log("Cron tab is running...")
+  const debut = new Date();
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
@@ -254,7 +255,9 @@ schedule.scheduleJob('28 11 * * *', async () => {
   await getResultsTaylorFrancis();
   await updateJournals();
 
-  console.log("Cron tab is fisnished...")
+
+  const fin = new Date();
+  console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
 });
 
 // Association des appels API avec des routes

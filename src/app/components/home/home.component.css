@@ -21,44 +21,70 @@ td {
   padding: 10px;
 }
 
-/* .mat-column-title {
-  width: 25%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.mat-column-journal {
-  width: 20%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.mat-column-description {
-  width: 40%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.mat-column-link {
-  width: 5%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.mat-column-deadline {
-  width: 10%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-} */
-
 .mat-button-size {
   width: 220px!important;
   min-width: unset!important;
   white-space: pre-wrap !important;
   line-height: normal;
+  text-decoration: underline;
+}
+
+.mat-button-size:hover {
+  color: orange;
+}
+
+#formFiltre {
+  margin-bottom: 15px;
+}
+
+.btn {
+  background-color: #f4511e;
+  border: none;
+  color: white;
+  padding: 5px 15px;
+  text-align: center;
+  opacity: 0.6;
+  transition: 0.3s;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 20px;
+  margin-left: 15px;
+}
+
+.btn-details {
+  background-color: #673ab7;
+  border: none;
+  color: white;
+  padding: 0px 8px;
+  text-align: center;
+  transition: 0.3s;
+  opacity: 0.8;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.btn:hover {
+  opacity: 1
+}
+
+.btn-details:hover {
+  transform: scale(1.1); 
+}
+
+.icon {
+  font-size: 16px;
+}
+
+#sjr {
+  transition: transform .2s;
+}
+
+#sjr:hover {
+  position: relative;
+  transform: scale(1.5);
+  border: none;
+  z-index: 200;
 }
