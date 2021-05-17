@@ -2,6 +2,7 @@ const cheerio = require("cheerio");
 const axios = require("axios");
 require('dotenv').config();
 const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
 let siteUrl = [
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40162",
@@ -84,14 +85,20 @@ const getResultsEG = async () => {
             }
           }
         });
-
-        deadlines.push(deadline);
+        // Gestion de la récupération sous un bon format de la date de soumission
+        let dateDeadline = getDate(deadline)
+        if(dateDeadline != null){
+          deadlines.push(dateDeadline);
+        } else {
+          deadlines.push(undefined)
+        }
+          
       });
     }
   }
 
   // On enregistre les revues et les calls 
-  insertRevuesAndCalls(1, revues, title, url, deadline, desc);
+  insertRevuesAndCalls(1, revues, title, url, deadlines, desc);
   
 };
 

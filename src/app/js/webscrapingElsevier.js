@@ -1,6 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
 let tabUrl = [
   "https://www.journals.elsevier.com/telecommunications-policy/call-for-papers", 
@@ -51,12 +52,18 @@ const getResultsElsevier = async () => {
       } else {
         limit = "deadline not found";
       }
-      deadlines.push(limit);
+      // Gestion de la récupération sous un bon format de la date de soumission
+      let dateDeadline = getDate(limit)
+      if(dateDeadline != null){
+        deadlines.push(dateDeadline);
+      } else {
+        deadlines.push(undefined)
+      }
     });
   }
   
   // On enregistre les revues et les calls
-  insertRevuesAndCalls(2, revues, title, url, deadline, desc);
+  insertRevuesAndCalls(2, revues, title, url, deadlines, desc);
 
 };
 

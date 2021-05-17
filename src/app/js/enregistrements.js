@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require('moment');
 const getRankOfReviewCNRS = require("./cnrs");
 const getRankOfReviewFNEGE = require("./fnege");
 const getRankOfReviewHCERES = require("./hceres");
@@ -45,13 +46,14 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
             });
         }
     }
-    console.log("----------Insert Calls---------")
+    console.log("----------Insert Calls---------");
+    
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
         var encodeTitle = encodeURI(title[i]);
         const alreadyExist = await axios.get(`${process.env.URL_API}/getCallbyTitle?title=${encodeTitle}`);
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-
+        // On vérifie que le call n'existe pas déjà en base 
         if(alreadyExist.data == "Not found") {
             await axios.post(`${process.env.URL_API}/createCall`,{
                 title: title[i],
@@ -60,16 +62,20 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
                 desc: desc[i],
                 url: url[i]
             });
-        } else {
+        } else { // Si il éxiste déjà en base on se charge de vérifier si la date de soumission a changée et on la met à jour 
             const ddBase = await axios.get(`${process.env.URL_API}/getDeadlineCallbyId/${alreadyExist.data}`);
-            var currDeadline = new Date(deadlines[i]);
-            var baseDeadline = new Date(ddBase.data);
-            console.log(alreadyExist.data+" - "+title[i]+"             :             "+currDeadline+"      =     "+baseDeadline)
-            if( currDeadline.getTime() === baseDeadline.getTime()){
+            var currDeadline = moment(new Date(deadlines[i]));
+            var baseDeadline = moment(new Date(ddBase.data));
+            // Verification que la date n'a pas changée
+            if( currDeadline.format('YYYY-MM-DD') === baseDeadline.format('YYYY-MM-DD')){
                 console.log("Same date")
+            } else { // Si elle a changée on la met à jour 
+                await axios.post(`${process.env.URL_API}/updateDeadlineById`,{
+                    id: alreadyExist.data,
+                    newDate: currDeadline.format('YYYY-MM-DD')
+                });
             }
         }
-        
     }
 };
 

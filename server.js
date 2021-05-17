@@ -36,7 +36,7 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
-getResultsTaylorFrancis();
+
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
@@ -83,8 +83,13 @@ const getCallbyTitle = (request, response) => {
 }
 
 // Mise à jour de la deadline 
-const updateDeadlineById = () => {
-  
+const updateDeadlineById = (request, response) => {
+  const {id, newDate} = parseInt(request.params.id);
+  const sql = 'UPDATE "CallForPaper" SET deadline = $2 WHERE Id = $1';
+  pool.query(sql,[id, newDate], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Deadline of Call For Paper - UPDATE`);
+  })
 }
 
 // Créer un call
@@ -240,7 +245,7 @@ const createEditeur = (request, response) => {
 }
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('0 0 * * *', async () => {
+schedule.scheduleJob('28 11 * * *', async () => {
   console.log("Cron tab is running...")
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
@@ -257,6 +262,7 @@ app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
 app.get('/api/getCallbyTitle',getCallbyTitle);
 app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
+app.post('/api/updateDeadlineById',updateDeadlineById);
 app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
