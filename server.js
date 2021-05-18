@@ -13,6 +13,8 @@ const axios = require('axios');
 const { request } = require('http');
 
 
+const {spawn} = require('child_process');
+
 const app = express();
 
 const connectionString = process.env.DATABASE_URL;
@@ -244,6 +246,29 @@ const createEditeur = (request, response) => {
   })
 }
 
+// advanced search
+const advancedSearch = (request, response) => {
+  const {paperAbstract} = request.body;
+
+  const python = spawn('python3', ['KeyWords.py']);
+
+  python.stdout.on('data', function (data) {
+    console.log('Pipe data from python script ...');
+    dataToSend = data.toString();
+  });
+
+  python.on('close', (code) => {
+    console.log(`child process close all stdio with code ${code}`);
+    // send data to browser
+    response.status(200).json(JSON.parse(dataToSend));
+  });
+
+  // const results = {};
+  // response.status(200).json(results.rows);
+}
+
+
+
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
   console.log("Cron tab is running...")
@@ -286,7 +311,7 @@ app.get('/api/getEditeur', getEditeur);
 app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
-
+app.post('/api/advanced-search',advancedSearch);
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **
