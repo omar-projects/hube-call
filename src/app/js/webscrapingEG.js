@@ -30,8 +30,11 @@ const fetchData = async (url) => {
 
 
 const getResultsEG = async () => {
+  await console.log("=============== EMERALD ===================");
+  await console.log("Scrapping :");
+
   for(let itemsite of siteUrl) {
-    console.log("Page en cours de scrapping : " + itemsite);
+    await console.log(itemsite);
 
     //Boolean true if this is the last page
     let isLastPage = false;
@@ -97,9 +100,9 @@ const getResultsEG = async () => {
     }
   }
 
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
   // On enregistre les revues et les calls 
-  insertRevuesAndCalls(1, revues, title, url, deadlines, desc);
-  
+  await insertRevuesAndCalls(1, revues, title, url, deadlines, desc);
 };
 
 module.exports = getResultsEG;
