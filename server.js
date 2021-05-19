@@ -87,7 +87,7 @@ const getCallbyTitle = (request, response) => {
   })
 }
 
-// Mise à jour de la deadline 
+// Mise à jour de la deadline
 const updateDeadlineById = (request, response) => {
   const {id, newDate} = request.body;
   const sql = 'UPDATE "CallForPaper" SET deadline = $2 WHERE Id = $1';
@@ -255,9 +255,9 @@ const createEditeur = (request, response) => {
 
 // advanced search
 const advancedSearch = (request, response) => {
-  const {paperAbstract} = request.body;
-
-  const python = spawn('python3', ['KeyWords.py']);
+  const paperAbstract = request.body;
+  console.log(paperAbstract);
+  const python = spawn('python3', ['KeyWords.py', paperAbstract.text]);
 
   python.stdout.on('data', function (data) {
     console.log('Pipe data from python script ...');
