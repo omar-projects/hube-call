@@ -49,24 +49,35 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
     
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
-        // encodage avec la fonction encodeURI puis manuellement pour le ? et le /
+        // encodage avec la fonction encodeURI puis manuellement pour le ? et le / et le & qui sont des caractère spéciaux dans les url
         var encodeTitle = encodeURI(title[i])
             .replace("?", "POINT_INTERROGATION")
+            .replace("&", "ESPERLUETTE")
             .replace("/", "SLASH");
         const alreadyExist = await axios.get(`${process.env.URL_API}/getCallbyTitle/${encodeTitle}`);
 
         // On vérifie que le call n'existe pas déjà en base 
         if(alreadyExist.data === "Not found") {
             await console.log("Création du Call For Paper : " + title[i]);
-            const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
 
-            await axios.post(`${process.env.URL_API}/createCall`,{
-                title: title[i],
-                revue: response.data,
-                deadline: deadlines[i],
-                desc: desc[i],
-                url: url[i]
-            });
+            // encodage avec la fonction encodeURI puis manuellement pour le ? et le / et le & qui sont des caractère spéciaux dans les url
+            var encodeRevueName = encodeURI(revues[i])
+                .replace("?", "POINT_INTERROGATION")
+                .replace("&", "ESPERLUETTE")
+                .replace("/", "SLASH");
+            const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${encodeRevueName}`);
+
+            if(response.data !== "Not found") {
+                await axios.post(`${process.env.URL_API}/createCall`,{
+                    title: title[i],
+                    revue: response.data,
+                    deadline: deadlines[i],
+                    desc: desc[i],
+                    url: url[i]
+                });
+            } else {
+                await console.log("[ERROR] Revue non trouvée : " + revues[i]);
+            }
         } else { // Si il existe déjà en base on se charge de vérifier si la date de soumission a changée et on la met à jour 
             const ddBase = await axios.get(`${process.env.URL_API}/getDeadlineCallbyId/${alreadyExist.data}`);
             var currDeadline = moment(new Date(deadlines[i]));
