@@ -42,7 +42,7 @@ console.log("Connexion réussie à la base de données !");
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper"';
+  const sql = 'SELECT * FROM "CallForPaper" WHERE deadline >= NOW() OR deadline IS NULL';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -71,8 +71,11 @@ const getDeadlineCallbyId = (request, response) => {
 
 // Le Call existe déjà
 const getCallbyTitle = (request, response) => {
-  const title = request.query.title;
-  console.log(title);
+  const title = request.params.title
+    .replace("POINT_INTERROGATION", "?")
+    .replace("ESPERLUETTE", "&")
+    .replace("SLASH", "/");
+
   const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
   pool.query(sql,[title], (error, results) => {
     parseError(error, sql);
@@ -86,7 +89,7 @@ const getCallbyTitle = (request, response) => {
 
 // Mise à jour de la deadline 
 const updateDeadlineById = (request, response) => {
-  const {id, newDate} = parseInt(request.params.id);
+  const {id, newDate} = request.body;
   const sql = 'UPDATE "CallForPaper" SET deadline = $2 WHERE Id = $1';
   pool.query(sql,[id, newDate], (error, results) => {
     parseError(error, sql);
@@ -106,7 +109,7 @@ const createCall = (request, response) => {
 
 // Get calls filtrer par rang HCERES
 const getCallFilterHCERES = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankHCERES" != \'\' ORDER BY "rankHCERES"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankHCERES" != \'\' AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankHCERES"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -115,7 +118,7 @@ const getCallFilterHCERES = (request, response) => {
 
 // Get calls filtrer par rang CNRS
 const getCallFilterCNRS = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankCNRS" != 0 ORDER BY "rankCNRS"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankCNRS" != 0 AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankCNRS"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -124,7 +127,7 @@ const getCallFilterCNRS = (request, response) => {
 
 // Get calls filtrer par rang FNEGE
 const getCallFilterFNEGE = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankFNEGE" != 0 ORDER BY "rankFNEGE"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankFNEGE" != 0 AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankFNEGE"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -163,7 +166,11 @@ const getRevuebyId = (request, response) => {
 
 //Get une revue Id grâce à son nom
 const getRevueIdbyName = (request, response) => {
-  const name = request.params.id;
+  const name = request.params.name
+      .replace("POINT_INTERROGATION", "?")
+      .replace("ESPERLUETTE", "&")
+      .replace("SLASH", "/");
+
   const sql = 'SELECT id FROM "Revue" WHERE name = $1';
   pool.query(sql,[name], (error, results) => {
     parseError(error, sql);
@@ -271,7 +278,7 @@ const advancedSearch = (request, response) => {
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
-  console.log("Cron tab is running...")
+  await console.log("Cron tab is running...")
   const debut = new Date();
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
@@ -280,17 +287,16 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsTaylorFrancis();
   await updateJournals();
 
-
   const fin = new Date();
-  console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
+  await console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
 });
 
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
-app.get('/api/getCallbyTitle',getCallbyTitle);
+app.get('/api/getCallbyTitle/:title',getCallbyTitle);
 app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
-app.post('/api/updateDeadlineById',updateDeadlineById);
+app.put('/api/updateDeadlineById',updateDeadlineById);
 app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
@@ -301,7 +307,7 @@ app.delete('/api/call/deleteAll', deleteAllCalls);
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
 app.get('/api/getRevue/:id',getRevuebyId);
-app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
+app.get('/api/getRevueIdbyName/:name',getRevueIdbyName);
 app.post('/api/createRevue',createRevue);
 app.put('/api/updateOARevue',updateOARevue);
 app.delete('/api/revue/deleteAll', deleteAllRevues);
@@ -321,7 +327,7 @@ app.get('*', function(req, res) {
 
 // Handler error pour gérer les erreur de PostgresSQL
 function parseError(err, sqlString) {
-  console.error("Requete : ", sqlString);
+  //console.error("Requete : ", sqlString);
 
   let errorCodes = {
     "08003": "connection_does_not_exist",
@@ -341,11 +347,13 @@ function parseError(err, sqlString) {
 
   if(err) {
     if (err.message !== undefined) {
+      console.error("Requete : ", sqlString);
       console.error("[ERROR] message : ", err.message);
     }
 
     if (err.code != 23505) {
       if (errorCodes[err.code] !== undefined) {
+        console.error("Requete : ", sqlString);
         console.error("[ERROR] Error code details : ", errorCodes[err.code]);
       }
     }

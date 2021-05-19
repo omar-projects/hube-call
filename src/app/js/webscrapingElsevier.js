@@ -20,9 +20,11 @@ const fetchData = async (url) => {
 };
 
 const getResultsElsevier = async () => {
-  
+  await console.log("=============== ELSEVIER ===================");
+  await console.log("Scrapping :");
+
   for(let i = 0 ; i < tabUrl.length ; i++) {
-    console.log("Page en cours de scrapping : " + tabUrl[i]);
+    await console.log(tabUrl[i]);
 
     const $ = await fetchData(tabUrl[i]);
 
@@ -62,9 +64,9 @@ const getResultsElsevier = async () => {
     });
   }
   
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
   // On enregistre les revues et les calls
-  insertRevuesAndCalls(2, revues, title, url, deadlines, desc);
-
+  await insertRevuesAndCalls(2, revues, title, url, deadlines, desc);
 };
 
 module.exports = getResultsElsevier;
