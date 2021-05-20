@@ -70,34 +70,8 @@ def tf(text):
 
     return tf_score
 
-################# INVERSE DOCUMENT FREQUENCY #################
-# IDF : calculates how common or rare a word is in the entire document set
-# The closer it is to 0, the more common a word is.
-def idf(text,sentences):
-    idf_score = {}
-    for word in text:
-        word_occurence_per_phrases = check_sent(word, sentences)
-        idf_score[word] = math.log(int(len(sentences))/(word_occurence_per_phrases+1))
-
-	# Performing a log and divide
-    return idf_score
-
-# check_sent
-def check_sent(word, sentences):
-    final = [all([w in sentence for w in word]) for sentence in sentences]
-    sent_len = [sentences[i] for i in range(0, len(final)) if final[i]]
-    return int(len(sent_len))
-
-################# TF-IDF #################
-# IDF : calculates the key words on a text based on their quantity(tf)/quality(idf)
-def tf_idf_score(tokens,sentences):
-    tf_score = tf(tokens)
-    idf_score = idf(tokens,sentences)
-    return {key: tf_score[key] * idf_score.get(key, 0) for key in tf_score.keys()}
-
-
 def get_top_n(dict_elem, n):
-    result = dict(sorted(dict_elem.items(), key = itemgetter(1), reverse = True)[:n])
+    result = dict(sorted(dict_elem.items(), key = itemgetter(1), reverse = True)[:n]) 
     return result
 
 ################# TEST #################
@@ -130,5 +104,5 @@ sentences = TextBlob(chosen_text).sentences
 # print()
 # print()
 # print("############ RESULT : ############")
-print(json.dumps(get_top_n(tf_idf_score(tokens,sentences), 10)))
+print(json.dumps(get_top_n(tf(tokens), 10)))
 sys.stdout.flush()
