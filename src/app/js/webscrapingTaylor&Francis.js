@@ -10,6 +10,7 @@ const url = new Array();
 const desc = new Array();
 const deadlines = new Array();
 const revues = new Array();
+const contenus = new Array();
 
 const fetchData = async (url) => {
   const result = await axios.get(url);
@@ -50,6 +51,9 @@ const getResultsTaylorFrancis = async () => {
     let path = url[i];
     const $ = await fetchData(path);
 
+    let content = $('div.panel-layout > div:nth-child(4)').text().trim().replace(/[\s]{2,}/g," ");
+    contenus.push(content);
+
     $('div .deadline__title > h4 > span > strong').each(function(index, elem) {
       const deadline = $(elem).text();
       deadlines.push(deadline);
@@ -59,6 +63,6 @@ const getResultsTaylorFrancis = async () => {
   
   await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
   // On enregistre les revues et les calls
-  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc);
+  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc, contenus);
 };
 module.exports = getResultsTaylorFrancis;
