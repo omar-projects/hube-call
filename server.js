@@ -71,11 +71,8 @@ const getDeadlineCallbyId = (request, response) => {
 
 // Le Call existe déjà
 const getCallbyTitle = (request, response) => {
-  const title = request.params.title
-    .replace("POINT_INTERROGATION", "?")
-    .replace("ESPERLUETTE", "&")
-    .replace("SLASH", "/");
-
+  const title = request.params.title;
+  
   const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
   pool.query(sql,[title], (error, results) => {
     parseError(error, sql);
@@ -166,10 +163,7 @@ const getRevuebyId = (request, response) => {
 
 //Get une revue Id grâce à son nom
 const getRevueIdbyName = (request, response) => {
-  const name = request.params.name
-      .replace("POINT_INTERROGATION", "?")
-      .replace("ESPERLUETTE", "&")
-      .replace("SLASH", "/");
+  const name = request.params.name;
 
   const sql = 'SELECT id FROM "Revue" WHERE name = $1';
   pool.query(sql,[name], (error, results) => {
@@ -253,19 +247,56 @@ const createEditeur = (request, response) => {
   })
 }
 
-// advanced search
+//---------- Mots clé ----------\\
+
+const getMotCleByTerme = (request, response) => {
+  const terme = request.params.terme;
+
+  const sql = 'SELECT * FROM "MotCle" WHERE terme = $1';
+  pool.query(sql,[terme], (error, results) => {
+    parseError(error, sql);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0]);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+const createMotCle = (request, response) => {
+  const { terme, calls} = request.body;
+
+  const sql = 'INSERT INTO "MotCle" VALUES ($1, $2)';
+  pool.query(sql, [terme, calls], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Keyword added`);
+  })
+}
+
+const updateMotCleByTerme = (request, response) => {
+  const terme = request.params.terme;
+  const { calls } = request.body;
+
+  const sql = 'UPDATE "MotCle" SET calls = $2 WHERE terme = $1';
+  pool.query(sql, [terme, calls], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Keyword updated`);
+  })
+}
+
+//---------- Advanced search ----------\\
+
 const advancedSearch = (request, response) => {
   const paperAbstract = request.body;
-  console.log(paperAbstract);
   const python = spawn('python3', ['KeyWords.py', paperAbstract.text]);
 
   python.stdout.on('data', function (data) {
-    console.log('Pipe data from python script ...');
+    //console.log('Pipe data from python script ...');
     dataToSend = data.toString();
   });
 
   python.on('close', (code) => {
-    console.log(`child process close all stdio with code ${code}`);
+    //console.log(`child process close all stdio with code ${code}`);
     // send data to browser
     response.status(200).json(JSON.parse(dataToSend));
   });
@@ -317,7 +348,12 @@ app.get('/api/getEditeur', getEditeur);
 app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
+
 app.post('/api/advanced-search',advancedSearch);
+
+app.get('/api/keywords/:terme', getMotCleByTerme);
+app.post('/api/create/keyword', createMotCle);
+app.put('/api/keywords/:terme/update', updateMotCleByTerme);
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **
