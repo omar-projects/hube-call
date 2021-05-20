@@ -1,0 +1,68 @@
+<div class="docs-primary-header mat-elevation-z6">
+    <h1>Statistics of call for paper</h1>
+</div>
+
+<div class="masonry-with-columns-2">
+  <div class="stats_revue">
+    <h1>Table of number of calls by journal</h1>
+    <mat-form-field>
+      <mat-label>Filter by Journal</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Ex. management">
+    </mat-form-field> 
+    <div class="table_stats_revue">
+      
+      <table mat-table class="mat-elevation-z2" [dataSource]="dataSource">  
+
+        <ng-container matColumnDef="revue">
+              <th mat-header-cell *matHeaderCellDef> Journal </th>
+              <td mat-cell *matCellDef="let item">
+                <button mat-button class="mat-button-size" (click)="openDialog(item.revue.id)">
+                  {{item.revue.id | getRevueNameById | async}}
+                </button>
+              </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nbCall">
+              <th mat-header-cell *matHeaderCellDef> Number of calls </th>
+              <td mat-cell *matCellDef="let item">
+                {{item.nbCall}}
+              </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      </table> 
+    </div> 
+  </div>
+
+  <div class="stats_editeurs">
+    <h1>Pie of call's number by editor</h1>
+    <ngx-charts-pie-chart class="camembert" 
+        [legend]="true"
+        [scheme]="colorScheme"
+        [legendTitle]="'Editors'" 
+        [view]="[600,500]"
+        [labels]="true"
+        [results]="callByEditeur" >
+    </ngx-charts-pie-chart>
+  </div>
+
+  <div class="stats_mensuel">
+    <h1>Graph of call's number by month</h1>
+    <ngx-charts-bar-vertical
+      [view]="[700, 400]"
+      [results]="callByMonth" 
+      [scheme]="colorScheme"
+      [gradient]="false"
+      [xAxis]="true"
+      [yAxis]="true"
+      [legend]="true"
+      [showXAxisLabel]="true"
+      [showYAxisLabel]="true"
+      [xAxisLabel]="xAxisLabelCallByMonth"
+      [yAxisLabel]="yAxisLabelCallByMonth">
+    </ngx-charts-bar-vertical>
+  </div>
+
+</div>

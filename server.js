@@ -36,7 +36,6 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
-
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
@@ -102,6 +101,16 @@ const createCall = (request, response) => {
   })
 }
 
+// Renvoie le nombre de call selon la revue
+const getNbCallByRevue = (request, response) => {
+  const fk_revue = parseInt(request.params.fk_revue);
+  const sql = 'SELECT count(*) FROM "CallForPaper" WHERE fk_revue = $1';
+  pool.query(sql, [fk_revue], (error, results) => {
+    parseError(error, sql);
+    response.status(200).send(results.rows[0].count);
+  })
+}
+
 // Get calls filtrer par rang HCERES
 const getCallFilterHCERES = (request, response) => {
   const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankHCERES" != \'\' ORDER BY "rankHCERES"';
@@ -135,6 +144,15 @@ const deleteAllCalls = (request, response) => {
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(201).send('All Calls For Paper deleted')
+  })
+}
+
+// Récupère le nombre de call par mois
+const getNbCallByMonth = (request, response) => {
+  const sql = 'SELECT to_char(date_insert,\'Mon\') as month, count(title) as number FROM "CallForPaper" GROUP BY month';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(200).json(results.rows)
   })
 }
 
@@ -244,8 +262,17 @@ const createEditeur = (request, response) => {
   })
 }
 
+const getNbCallByEditeur = (request, response) => {
+  const sql = 'SELECT e.name, count(c.title) as value FROM "CallForPaper" as c INNER JOIN "Revue" as r ON c.fk_revue = r.id INNER JOIN "Editeur" as e ON r.fk_editeur = e.id GROUP BY e.name';
+  pool.query(sql, (error, results) => {
+    console.log(results.rows);
+    parseError(error, sql);
+    response.status(200).json(results.rows);
+  })
+}
+
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('0 0 * * *', async () => {
+schedule.scheduleJob('13 12 * * *', async () => {
   console.log("Cron tab is running...")
   const debut = new Date();
 
@@ -264,6 +291,7 @@ schedule.scheduleJob('0 0 * * *', async () => {
 app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
 app.get('/api/getCallbyTitle',getCallbyTitle);
+app.get('/api/getNbCallByRevue/:fk_revue',getNbCallByRevue)
 app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
 app.post('/api/updateDeadlineById',updateDeadlineById);
 app.post('/api/createCall',createCall);
@@ -271,6 +299,8 @@ app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
+app.get('/api/getNbCallByMonth', getNbCallByMonth);
+
 
 
 // Association des appels API avec des routes
@@ -283,6 +313,7 @@ app.delete('/api/revue/deleteAll', deleteAllRevues);
 
 // Association des appels API avec des routes
 app.get('/api/getEditeur', getEditeur);
+app.get('/api/getNbCallByEditeur', getNbCallByEditeur);
 app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);

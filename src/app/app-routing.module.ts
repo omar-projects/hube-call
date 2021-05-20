@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { RechercheAvanceeComponent } from './components/recherche-avancee/recherche-avancee.component';
+import { StatisticsComponent } from './components/statistics/statistics.component';
 
 
 const routes: Routes = [
@@ -17,6 +18,10 @@ const routes: Routes = [
   {
     path: 'advanced-search',
     component: RechercheAvanceeComponent
+  },
+  {
+    path: 'statistics',
+    component: StatisticsComponent
   }
 ];
 
