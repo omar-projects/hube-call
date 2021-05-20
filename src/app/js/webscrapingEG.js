@@ -1,11 +1,8 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 require('dotenv').config();
-const getRankOfReviewCNRS = require("./cnrs");
-const getRankOfReviewFNEGE = require("./fnege");
-const getRankOfReviewHCERES = require("./hceres");
-const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
 let siteUrl = [
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40162",
@@ -25,6 +22,7 @@ const url = new Array();
 const deadlines = new Array();
 const revues = new Array();
 const desc = new Array();
+const contenus = new Array();
 
 const fetchData = async (url) => {
   const result = await axios.get(url);
@@ -33,8 +31,11 @@ const fetchData = async (url) => {
 
 
 const getResultsEG = async () => {
+  await console.log("=============== EMERALD ===================");
+  await console.log("Scrapping :");
+
   for(let itemsite of siteUrl) {
-    console.log("Page en cours de scrapping : " + itemsite);
+    await console.log(itemsite);
 
     //Boolean true if this is the last page
     let isLastPage = false;
@@ -67,9 +68,15 @@ const getResultsEG = async () => {
       });
     }
 
-    //Cherche les deadlines dans tous les Calls For Paper
+    //Cherche les deadlines et le contenu dans tous les Calls For Paper
     for(let item of url) {
       const $ = await fetchData(item);
+
+      let content = $('.b-hero__title').text().trim().replace(/[\s]{2,}/g," ");
+      content += " ";
+      content += $('.section > div.section__inner.news-item.wysiwyg.b-single-col__inner').text().trim().replace(/[\s]{2,}/g," ");
+      contenus.push(content);
+
       $('.section > div.section__inner.news-item.wysiwyg.b-single-col__inner').each(async function(i,element){
         let deadline = 'deadline not found';
 
@@ -88,57 +95,21 @@ const getResultsEG = async () => {
             }
           }
         });
-
-        deadlines.push(deadline);
+        // Gestion de la récupération sous un bon format de la date de soumission
+        let dateDeadline = getDate(deadline)
+        if(dateDeadline != null){
+          deadlines.push(dateDeadline);
+        } else {
+          deadlines.push(undefined)
+        }
+          
       });
     }
   }
 
-  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
-  const revuesSansDoublon = revues.filter(function(ele , pos) {
-    return revues.indexOf(ele) == pos;
-  });
-
-  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
-    // Si la revue n'est pas trouvée, on l'ajoute
-    if(response.data == "Not found") {
-      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
-
-      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
-      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
-      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
-      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-      const sjr = await getSjrWidget(revuesSansDoublon[i]);
-
-      await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 1,
-        name: revuesSansDoublon[i],
-        rankFNEGE: rankFNEGE,
-        rankHCERES: rankHCERES,
-        rankCNRS: rankCNRS,
-        isOpenAccess: isOpenAccess,
-        sjr: sjr
-      });
-    }
-  }
-
-  // Création en bdd des calls
-  for(var i = 0 ; i < title.length ; i++) {
-    console.log(" -> création du call for paper : " + title[i]);
-
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-    
-    await axios.post(`${process.env.URL_API}/createCall`,{
-      title: title[i],
-      revue: response.data,
-      deadline: deadlines[i],
-      desc: desc[i],
-      url: url[i]
-    });
-  }
-  
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
+  // On enregistre les revues et les calls 
+  await insertRevuesAndCalls(1, revues, title, url, deadlines, desc, contenus);
 };
 
 module.exports = getResultsEG;

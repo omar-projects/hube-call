@@ -31,21 +31,21 @@ export class CallForPaperService {
     return this.http.post(url, call);
   }
 
-  public getCallsFilterHCERES() {
-    const url = `${this.apiURL}/getCallFilterHCERES`;
-    console.log('getCallsFilterHCERES |  url = ' + url);
+  public getCallsByRank(rank: string) {
+    let url;
+
+    if(rank === "CNRS"){
+      url = `${this.apiURL}/getCallFilterCNRS`;
+    } else if(rank === "HCERES") {
+      url = `${this.apiURL}/getCallFilterHCERES`;
+    } else if(rank === "FNEGE") {
+      url = `${this.apiURL}/getCallFilterFNEGE`;
+    } else {
+      url = `${this.apiURL}/getCall`
+    }
+    
+    console.log('getCallsByRank |  url = ' + url);
     return this.http.get<CallForPaper[]>(url);
   }
 
-  public getCallsFilterCNRS() {
-    const url = `${this.apiURL}/getCallFilterCNRS`;
-    console.log('getCallsFilterCNRS |  url = ' + url);
-    return this.http.get<CallForPaper[]>(url);
-  }
-
-  public getCallsFilterFNEGE() {
-    const url = `${this.apiURL}/getCallFilterFNEGE`;
-    console.log('getCallsFilterFNEGE |  url = ' + url);
-    return this.http.get<CallForPaper[]>(url);
-  }
 }

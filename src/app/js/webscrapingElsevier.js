@@ -1,10 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const getRankOfReviewCNRS = require("./cnrs");
-const getRankOfReviewFNEGE = require("./fnege");
-const getRankOfReviewHCERES = require("./hceres");
-const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
 let tabUrl = [
   "https://www.journals.elsevier.com/telecommunications-policy/call-for-papers", 
@@ -16,6 +13,7 @@ const url = new Array();
 const desc = new Array();
 const deadlines = new Array();
 const revues = new Array();
+const contenus = new Array();
 
 const fetchData = async (url) => {
   const result = await axios.get(url);
@@ -23,9 +21,11 @@ const fetchData = async (url) => {
 };
 
 const getResultsElsevier = async () => {
-  
+  await console.log("=============== ELSEVIER ===================");
+  await console.log("Scrapping :");
+
   for(let i = 0 ; i < tabUrl.length ; i++) {
-    console.log("Page en cours de scrapping : " + tabUrl[i]);
+    await console.log(tabUrl[i]);
 
     const $ = await fetchData(tabUrl[i]);
 
@@ -37,14 +37,19 @@ const getResultsElsevier = async () => {
       revues.push(nomRevue);
       desc.push($(element).find("div.article-content > p").text());
     });
-
   }
 
   for(var i = 0 ; i < title.length ; i++) {
     const $ = await fetchData(url[i]);
 
+    $('div#Content1').each(function(i, elem) {
+      let content = $(elem).text().trim().replace(/[\s]{2,}/g," ");
+      contenus.push(content);
+    });
+
     $('div.article-content').each(function(i,elem) {
       let s = $(elem).text().trim();
+
       let limit;
       if(s.search("Paper submission:") > 0) {
         let index = s.search("Paper submission:");
@@ -55,54 +60,19 @@ const getResultsElsevier = async () => {
       } else {
         limit = "deadline not found";
       }
-      deadlines.push(limit);
+      // Gestion de la récupération sous un bon format de la date de soumission
+      let dateDeadline = getDate(limit)
+      if(dateDeadline != null){
+        deadlines.push(dateDeadline);
+      } else {
+        deadlines.push(undefined)
+      }
     });
   }
-  
-  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
-  const revuesSansDoublon = revues.filter(function(ele , pos){
-    return revues.indexOf(ele) == pos;
-  });
 
-  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
-    // Si la revue n'est pas trouvée, on l'ajoute
-    if(response.data == "Not found") {
-      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
-
-      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
-      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
-      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
-      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-      const sjr = await getSjrWidget(revuesSansDoublon[i]);
-
-      await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 2,
-        name: revuesSansDoublon[i],
-        rankFNEGE: rankFNEGE,
-        rankHCERES: rankHCERES,
-        rankCNRS: rankCNRS,
-        isOpenAccess: isOpenAccess,
-        sjr: sjr
-      });
-    }
-  }
-
-  // Création en bdd des calls
-  for(var i = 0 ; i < title.length ; i++) {
-    console.log(" -> création du call for paper : " + title[i]);
-
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-    
-    await axios.post(`${process.env.URL_API}/createCall`,{
-      title: title[i],
-      revue: response.data,
-      deadline: deadlines[i],
-      desc: desc[i],
-      url: url[i]
-    });
-  }
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
+  // On enregistre les revues et les calls
+  await insertRevuesAndCalls(2, revues, title, url, deadlines, desc, contenus);
 };
 
 module.exports = getResultsElsevier;

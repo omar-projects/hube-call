@@ -9,6 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Revue } from 'src/app/models/revue';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ModalInfoJournalComponent } from './modal-info-journal/modal-info-journal.component';
+import { Editeur } from 'src/app/models/editeur';
+import { EditeurService } from 'src/app/services/editeur.service';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +31,9 @@ export class HomeComponent implements OnInit {
   // Liste de toutes les revues
   revueList: Array<Revue>;
 
+  // Liste des editeurs
+  editeurList: Array<Editeur>;
+
   // Formulaire de triage par rang
   checkoutForm: FormGroup;
 
@@ -37,9 +42,15 @@ export class HomeComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   // Création du formulaire
-  constructor(private callService: CallForPaperService, private revueService: RevueService, public dialog: MatDialog, private formBuilder: FormBuilder) {
+  constructor(
+    private callService: CallForPaperService, 
+    private revueService: RevueService, 
+    private editeurService: EditeurService,
+    public dialog: MatDialog, 
+    private formBuilder: FormBuilder) {
     this.checkoutForm = this.formBuilder.group({
-      rank: ['', Validators.required]
+      rank: ['', Validators.required],
+      editeur: ['', Validators.required]
     })
   }
 
@@ -54,42 +65,30 @@ export class HomeComponent implements OnInit {
     this.revueService.getRevues().subscribe((res => {
       this.revueList = res;
     }));
+
+    this.editeurService.getEditeurs().subscribe((res) => {
+      this.editeurList = res;
+    });
+
+    this.checkoutForm.value.rank = "none";
   }
 
-  //Filtres sur les ranks, changement de la liste de données du tableau en fonction du choix du user dans le formulaire
-  onSubmit() {
-    if(this.checkoutForm.value.rank == "None"){
-      this.callService.getCalls().subscribe((res)=>{
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-    }
-    else if (this.checkoutForm.value.rank == "CNRS"){
-      this.callService.getCallsFilterCNRS().subscribe((res)=>{
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-    }
-    else if (this.checkoutForm.value.rank == "HCERES"){
-      this.callService.getCallsFilterHCERES().subscribe((res)=>{
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-    }
-    else if(this.checkoutForm.value.rank == "FNEGE"){
-      this.callService.getCallsFilterFNEGE().subscribe((res)=>{
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
-    }
+  // Filtre les calls en fonction de leur rank et/ou de leur editeur
+  onSubmitQuickSearch() {
+    this.callService.getCallsByRank(this.checkoutForm.value.rank).subscribe((calls)=>{
 
-    this.revueService.getRevues().subscribe((res => {
-      this.revueList = res;
-    }));
+      if(this.checkoutForm.value.editeur !== "all") {
+        // On filtre le resultat avec les calls appartenant à l'éditeur selectionné
+        calls = calls.filter((call) => {
+          let revueDuCall: Revue = this.getRevueById(call.fk_revue);
+          return revueDuCall.fk_editeur === this.checkoutForm.value.editeur;
+        });
+      }
+
+      this.dataSource = new MatTableDataSource(calls);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    });
   }
 
   // Méthode d'ouverture du Dialog

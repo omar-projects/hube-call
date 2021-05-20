@@ -1,37 +1,40 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const getRankOfReviewCNRS = require("./cnrs");
-const getRankOfReviewFNEGE = require("./fnege");
-const getRankOfReviewHCERES = require("./hceres");
-const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const insertRevuesAndCalls = require('./enregistrements');
+const getDate = require('./service');
 
-let link = "https://authorservices.taylorandfrancis.com/call-for-papers/";
+let urlTaylorFrancis = "https://authorservices.taylorandfrancis.com/call-for-papers/";
 
 const title = new Array();
 const url = new Array();
 const desc = new Array();
-const deadline = new Array();
+const deadlines = new Array();
 const revues = new Array();
+const contenus = new Array();
 
-const fetchData = async () => {
-  const result = await axios.get(link);
+const fetchData = async (url) => {
+  const result = await axios.get(url);
   return cheerio.load(result.data);
 };
 
 /**
- * Méthode réalisant le xcrapping pour le site de l'éditeur Taylor & Francis 
+ * Méthode réalisant le scrapping pour le site de l'éditeur Taylor & Francis 
  */
 const getResultsTaylorFrancis = async () => {
-  
+  await console.log("=============== TAYLOR FRANCIS ===================");
+  await console.log("Scrapping :");
+
+  await console.log(urlTaylorFrancis);
+
   const regExManagement = new RegExp("\d\*,\?1694,\d\*,\?");
-  const $ = await fetchData();
+  const regExTourism = new RegExp("\d\*,\?1715,\d\*,\?");
+  const $ = await fetchData(urlTaylorFrancis);
   
   // On parcours tous les div concernant les call for papers
   $("div .filtercpt__article").each((index, element) => {
     let sujet = $(element).attr('data-subjectareas');
     // On restreind au call for paper concernant le management 
-    if(sujet.match(regExManagement)){
+    if(sujet.match(regExManagement) || sujet.match(regExTourism)){
       let item = $(element).find("header.article-header").find("h3").text();
       revues.push(item);
       item = $(element).find("span.article-header-subtitle").text();
@@ -44,58 +47,22 @@ const getResultsTaylorFrancis = async () => {
   });
 
   // Recherche la deadline selon l'url des call for paper récupérée plus tôt
-  url.forEach(async function(path) {
-    link = path;
-    const $ = await fetchData();
-    $('div .deadline__title').each(async function(index,elem) {
-      let item = $(elem).find("strong").text();
-      deadline.push(item);
-    });
-  });
+  for(var i = 0 ; i < url.length ; i++) {
+    let path = url[i];
+    const $ = await fetchData(path);
 
-  // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
-  const revuesSansDoublon = revues.filter(function(ele , pos) {
-    return revues.indexOf(ele) == pos;
-  });
+    let content = $('div.panel-layout > div:nth-child(4)').text().trim().replace(/[\s]{2,}/g," ");
+    contenus.push(content);
 
-  for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-
-    // Si la revue n'est pas trouvée, on l'ajoute
-    if(response.data == "Not found") {
-      console.log(" -> création de la revue : " + revuesSansDoublon[i]);
-
-      const rankCNRS = await getRankOfReviewCNRS(revuesSansDoublon[i]);
-      const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
-      const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
-      const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-      const sjr = await getSjrWidget(revuesSansDoublon[i]);
-
-      await axios.post(`${process.env.URL_API}/createRevue`,{
-        editeur: 3,
-        name: revuesSansDoublon[i],
-        rankFNEGE: rankFNEGE,
-        rankHCERES: rankHCERES,
-        rankCNRS: rankCNRS,
-        isOpenAccess: isOpenAccess,
-        sjr: sjr
-      });
-    }
-  }
-
-  // Création en bdd des calls
-  for(var i = 0 ; i < title.length ; i++) {
-    const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revues[i]}`);
-    
-    await axios.post(`${process.env.URL_API}/createCall`,{
-      title: title[i],
-      revue: response.data,
-      deadline: deadline[i],
-      desc: desc[i],
-      url: url[i]
+    $('div .deadline__title > h4 > span > strong').each(function(index, elem) {
+      const deadline = $(elem).text();
+      deadlines.push(deadline);
+      return false; // equivalent de break;
     });
   }
-
+  
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
+  // On enregistre les revues et les calls
+  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc, contenus);
 };
-
 module.exports = getResultsTaylorFrancis;

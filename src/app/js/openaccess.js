@@ -20,7 +20,7 @@ const getOpenAccess = async keyword => {
       console.log("[Recuperation de l'Open Access] " + e);
       return false;
     }
-
+  
     const result = await page.evaluate(() => {
       var v = document.querySelector("div.ac > p");
 

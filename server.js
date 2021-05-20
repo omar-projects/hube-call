@@ -7,9 +7,13 @@ const bodyParser = require('body-parser');
 const schedule = require('node-schedule');
 const getResultsEG = require('./src/app/js/webscrapingEG');
 const getResultsElsevier = require('./src/app/js/webscrapingElsevier');
+const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
 const updateJournals = require('./src/app/js/updateJournals');
 const axios = require('axios');
-const getResultsTaylorFrancis = require('./src/app/js/webscrapingTaylor&Francis');
+const { request } = require('http');
+
+
+const {spawn} = require('child_process');
 
 const app = express();
 
@@ -38,7 +42,7 @@ console.log("Connexion réussie à la base de données !");
 //---------- CALLFORPAPERS ----------\\
 // Get tous les calls
 const getCall = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper"';
+  const sql = 'SELECT * FROM "CallForPaper" WHERE deadline >= NOW() OR deadline IS NULL';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -55,6 +59,41 @@ const getCallbyId = (request, response) => {
   })
 }
 
+//Get deadline d'un call par Id
+const getDeadlineCallbyId = (request, response) => {
+  const id = parseInt(request.params.id);
+  const sql = 'SELECT * FROM "CallForPaper" WHERE Id = $1';
+  pool.query(sql,[id], (error, results) => {
+    parseError(error, sql);
+    response.status(200).send(results.rows[0].deadline)
+  })
+}
+
+// Le Call existe déjà
+const getCallbyTitle = (request, response) => {
+  const title = request.params.title;
+  
+  const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
+  pool.query(sql,[title], (error, results) => {
+    parseError(error, sql);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0].id);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+// Mise à jour de la deadline
+const updateDeadlineById = (request, response) => {
+  const {id, newDate} = request.body;
+  const sql = 'UPDATE "CallForPaper" SET deadline = $2 WHERE Id = $1';
+  pool.query(sql,[id, newDate], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Deadline of Call For Paper - UPDATE`);
+  })
+}
+
 // Créer un call
 const createCall = (request, response) => {
   const {title, revue, deadline, desc, url } = request.body
@@ -67,7 +106,7 @@ const createCall = (request, response) => {
 
 // Get calls filtrer par rang HCERES
 const getCallFilterHCERES = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankHCERES" != \'\' ORDER BY "rankHCERES"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankHCERES" != \'\' AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankHCERES"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -76,7 +115,7 @@ const getCallFilterHCERES = (request, response) => {
 
 // Get calls filtrer par rang CNRS
 const getCallFilterCNRS = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankCNRS" != 0 ORDER BY "rankCNRS"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankCNRS" != 0 AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankCNRS"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -85,7 +124,7 @@ const getCallFilterCNRS = (request, response) => {
 
 // Get calls filtrer par rang FNEGE
 const getCallFilterFNEGE = (request, response) => {
-  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankFNEGE" != 0 ORDER BY "rankFNEGE"';
+  const sql = 'SELECT * FROM "CallForPaper","Revue" r WHERE "fk_revue" = r."id" AND "rankFNEGE" != 0 AND (deadline >= NOW() OR deadline IS NULL) ORDER BY "rankFNEGE"';
   pool.query(sql, (error, results) => {
     parseError(error, sql);
     response.status(200).json(results.rows)
@@ -124,7 +163,8 @@ const getRevuebyId = (request, response) => {
 
 //Get une revue Id grâce à son nom
 const getRevueIdbyName = (request, response) => {
-  const name = request.params.id;
+  const name = request.params.name;
+
   const sql = 'SELECT id FROM "Revue" WHERE name = $1';
   pool.query(sql,[name], (error, results) => {
     parseError(error, sql);
@@ -207,13 +247,70 @@ const createEditeur = (request, response) => {
   })
 }
 
+//---------- Mots clé ----------\\
+
+const getMotCleByTerme = (request, response) => {
+  const terme = request.params.terme;
+
+  const sql = 'SELECT * FROM "MotCle" WHERE terme = $1';
+  pool.query(sql,[terme], (error, results) => {
+    parseError(error, sql);
+    if(results.rows[0]) {
+      response.status(200).json(results.rows[0]);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+const createMotCle = (request, response) => {
+  const { terme, calls} = request.body;
+
+  const sql = 'INSERT INTO "MotCle" VALUES ($1, $2)';
+  pool.query(sql, [terme, calls], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Keyword added`);
+  })
+}
+
+const updateMotCleByTerme = (request, response) => {
+  const terme = request.params.terme;
+  const { calls } = request.body;
+
+  const sql = 'UPDATE "MotCle" SET calls = $2 WHERE terme = $1';
+  pool.query(sql, [terme, calls], (error, results) => {
+    parseError(error, sql);
+    response.status(201).send(`Keyword updated`);
+  })
+}
+
+//---------- Advanced search ----------\\
+
+const advancedSearch = (request, response) => {
+  const paperAbstract = request.body;
+  const python = spawn('python3', ['KeyWords.py', paperAbstract.text]);
+
+  python.stdout.on('data', function (data) {
+    //console.log('Pipe data from python script ...');
+    dataToSend = data.toString();
+  });
+
+  python.on('close', (code) => {
+    //console.log(`child process close all stdio with code ${code}`);
+    // send data to browser
+    response.status(200).json(JSON.parse(dataToSend));
+  });
+
+  // const results = {};
+  // response.status(200).json(results.rows);
+}
+
+
+
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
-  console.log("Cron tab is running...")
+  await console.log("Cron tab is running...")
   const debut = new Date();
-
-  // Suppression des calls
-  await axios.delete(`${process.env.URL_API}/call/deleteAll`);
 
   //Scrapping des sites des éditeurs pour créer les revues et les calls à jour
   await getResultsElsevier();
@@ -221,24 +318,27 @@ schedule.scheduleJob('0 0 * * *', async () => {
   await getResultsTaylorFrancis();
   await updateJournals();
 
-
   const fin = new Date();
-  console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
+  await console.log("Cron tab is fisnished in " + (fin-debut) + " ms ...");
 });
 
 // Association des appels API avec des routes
 app.get('/api/getCall', getCall);
 app.get('/api/getCall/:id',getCallbyId);
+app.get('/api/getCallbyTitle/:title',getCallbyTitle);
+app.get('/api/getDeadlineCallbyId/:id',getDeadlineCallbyId);
+app.put('/api/updateDeadlineById',updateDeadlineById);
 app.post('/api/createCall',createCall);
 app.get('/api/getCallFilterHCERES', getCallFilterHCERES);
 app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
 
+
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
 app.get('/api/getRevue/:id',getRevuebyId);
-app.get('/api/getRevueIdbyName/:id',getRevueIdbyName);
+app.get('/api/getRevueIdbyName/:name',getRevueIdbyName);
 app.post('/api/createRevue',createRevue);
 app.put('/api/updateOARevue',updateOARevue);
 app.delete('/api/revue/deleteAll', deleteAllRevues);
@@ -249,6 +349,11 @@ app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
 
+app.post('/api/advanced-search',advancedSearch);
+
+app.get('/api/keywords/:terme', getMotCleByTerme);
+app.post('/api/create/keyword', createMotCle);
+app.put('/api/keywords/:terme/update', updateMotCleByTerme);
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **
@@ -258,7 +363,7 @@ app.get('*', function(req, res) {
 
 // Handler error pour gérer les erreur de PostgresSQL
 function parseError(err, sqlString) {
-  console.error("Requete : ", sqlString);
+  //console.error("Requete : ", sqlString);
 
   let errorCodes = {
     "08003": "connection_does_not_exist",
@@ -278,11 +383,13 @@ function parseError(err, sqlString) {
 
   if(err) {
     if (err.message !== undefined) {
+      console.error("Requete : ", sqlString);
       console.error("[ERROR] message : ", err.message);
     }
 
     if (err.code != 23505) {
       if (errorCodes[err.code] !== undefined) {
+        console.error("Requete : ", sqlString);
         console.error("[ERROR] Error code details : ", errorCodes[err.code]);
       }
     }
