@@ -1,6 +1,7 @@
 DROP TABLE "CallForPaper" CASCADE;
 DROP TABLE "Revue" CASCADE;
 DROP TABLE "Editeur" CASCADE;
+DROP TABLE "MotCle" CASCADE;
 
 
 CREATE TABLE "CallForPaper" (
@@ -43,6 +44,15 @@ CREATE TABLE "Editeur" (
 ) WITH (
   OIDS=FALSE
 );
+
+CREATE TABLE "MotCle" (
+	"terme" varchar(200) NOT NULL,
+	"calls" text NULL,
+	CONSTRAINT "MotCles_pk" PRIMARY KEY ("terme"),
+	UNIQUE("terme")
+) WITH (
+	OIDS=FALSE
+)
 
 
 ALTER TABLE "CallForPaper" ADD CONSTRAINT "CallForPaper_fk0" FOREIGN KEY ("fk_revue") REFERENCES "Revue"("id") ON DELETE CASCADE;
