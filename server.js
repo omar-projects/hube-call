@@ -270,7 +270,7 @@ const advancedSearch = (request, response) => {
 
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('0 0 * * *', async () => {
+schedule.scheduleJob('41 13 * * *', async () => {
   console.log("Cron tab is running...")
   const debut = new Date();
 
@@ -312,6 +312,7 @@ app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
 app.post('/api/advanced-search',advancedSearch);
+app.post('/api/result-search',advancedSearch);
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **

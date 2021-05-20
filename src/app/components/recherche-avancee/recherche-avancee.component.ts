@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
+import {Router} from "@angular/router";
+import { ResultatDeRechercheService } from '../resultat-de-recherche/resultat-de-recherche.service';
+import { CallForPaper } from 'src/app/models/callForPaper';
 
 @Component({
   selector: 'app-recherche-avancee',
@@ -12,12 +15,14 @@ export class RechercheAvanceeComponent implements OnInit {
 
   error: any = {};
 
-  constructor(private formBuilder: FormBuilder) { 
+  paperAbstract: String;
+
+  constructor(private formBuilder: FormBuilder, private router: Router, private resultatDeRechercheService: ResultatDeRechercheService) { 
   }
 
   ngOnInit(): void {
     this.rechercheAvanceeFormGroup = this.formBuilder.group({
-      abstract: ['', [Validators.required, Validators.maxLength(5000)]]
+      paperAbstract: ['', [Validators.required, Validators.maxLength(5000)]]
     })
   }
 
@@ -25,7 +30,12 @@ export class RechercheAvanceeComponent implements OnInit {
     if(this.rechercheAvanceeFormGroup.valid) {
       this.error = {}; // il n'y a plus d'erreur sur les champs du formulaire
 
-      // SUITE
+      // Enregistrer le call dans la liste de calls
+      this.addPaperToList(this.getFakeData());
+      this.addPaperToList(this.getFakeData2());
+
+      //Redirige vers la page
+      this.router.navigate(['/advanced-search/result']);
 
     } else {
       this.affichageErreur();
@@ -34,7 +44,7 @@ export class RechercheAvanceeComponent implements OnInit {
 
   // Remplie le champs 'error' en fonction de l'état du formulaire pour afficher les erreurs
   affichageErreur() {
-    this.error.abstract = !this.isFieldValid('abstract');
+    this.error.paperAbstract = !this.isFieldValid('paperAbstract');
   }
 
   // Retourne true si le champs 'fied' n'est pas valide
@@ -42,4 +52,37 @@ export class RechercheAvanceeComponent implements OnInit {
     return this.rechercheAvanceeFormGroup.get(field).valid;
   } 
 
+  // Set les données qui seront envoyées à la page de resultats
+  addPaperToList(call: CallForPaper){
+    this.resultatDeRechercheService.callForPapers.push(call);
+  }
+
+
+  //#############################################################################################
+  //
+  // TEST : CREATION DE DONNEES FICTIVES
+
+  getFakeData(): CallForPaper{
+    let call =  new CallForPaper();
+    call.id = 0;
+    call.title = "Title test";
+    call.deadline = new Date();
+    call.desc = "Description test";
+    call.url = "https://www.google.fr/";
+    call.fk_revue = 0;    
+
+    return call;
+  }
+
+  getFakeData2(): CallForPaper{
+    let call =  new CallForPaper();
+    call.id = 1;
+    call.title = "Title test2";
+    call.deadline = new Date();
+    call.desc = "Description test2";
+    call.url = "https://www.google.fr/";
+    call.fk_revue = 1;    
+
+    return call;
+  }
 }
