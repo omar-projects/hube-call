@@ -11,12 +11,12 @@ CREATE TABLE "CallForPaper" (
 	"deadline" DATE	,
 	"desc" text NOT NULL,
 	"url" varchar(255) NOT NULL,
+	"date_insert" DATE NOT NULL DEFAULT CURRENT_DATE,
 	CONSTRAINT "CallForPaper_pk" PRIMARY KEY ("id"),
 	UNIQUE ("title","fk_revue","deadline")
 ) WITH (
   OIDS=FALSE
 );
-
 
 
 CREATE TABLE "Revue" (

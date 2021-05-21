@@ -16,4 +16,8 @@ export class EditeurService {
     return this.http.get<Editeur[]>(`${this.apiURL}/getEditeur`);
   }
 
+  public getNbCallByEditeur() {
+    return this.http.get<Editeur[]>(`${this.apiURL}/getNbCallByEditeur`);
+  }
+
 }
