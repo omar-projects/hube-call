@@ -37,7 +37,7 @@ body {
 /* Div principal */
 .stats_revue {
   background-color: #73439b;
-  width: 50%;
+  width: 35%;
   border-radius: 25px;
 }
 
@@ -56,8 +56,8 @@ table {
   display: block;
 }
 
-table>input {
-  display: none;
+.mat-button-size:hover {
+  color: orange;
 }
 
 .mat_row {
@@ -75,6 +75,7 @@ table>input {
 /* ############### STATS DU NB DE CALLS PAR REVUE ################## */
 
 .stats_editeurs {
+  width: 55%;
   border-radius: 25px;
   background-color: #73439b;
 }
@@ -88,7 +89,7 @@ table>input {
 /* ############### STATS DU NB DE CALLS PAR MOIS ################## */
 
 .stats_mensuel {
-  width: 100%;
+  width: 80%;
   border-radius: 25px;
   background-color: #73439b;
 }
