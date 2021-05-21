@@ -383,6 +383,7 @@ app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
 
 app.post('/api/advanced-search',advancedSearch);
+app.post('/api/result-search',advancedSearch);
 
 app.get('/api/keywords/:terme', getMotCleByTerme);
 app.post('/api/create/keyword', createMotCle);
