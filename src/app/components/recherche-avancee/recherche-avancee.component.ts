@@ -30,17 +30,17 @@ export class RechercheAvanceeComponent implements OnInit {
     if(this.rechercheAvanceeFormGroup.valid) {
       this.error = {}; // il n'y a plus d'erreur sur les champs du formulaire
 
-
       // Enregistrer le call dans la liste de calls
       this.ResetPaperAbstract();
 
-      //exemple 1
-      this.addPaperToList(this.getFakeData());
-      this.addAccuracyToList(12);
-      //exemple 2
-      this.addPaperToList(this.getFakeData2());
-      this.addAccuracyToList(70);
-
+      // TEST / EXEMPLE d'utilisation des fonctions de sauvegarde des données
+          //exemple 1 
+          this.addPaperToList(this.getFakeData());
+          this.addAccuracyToList(12);
+          //exemple 2
+          this.addPaperToList(this.getFakeData2());
+          this.addAccuracyToList(70);
+      // FIN TEST
 
       //Redirige vers la page
       this.router.navigate(['/advanced-search/result']);
@@ -104,4 +104,6 @@ export class RechercheAvanceeComponent implements OnInit {
 
     return call;
   }
+
+  //#############################################################################################
 }
