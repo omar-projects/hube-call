@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Revue } from 'src/app/models/revue';
+import { RevueService } from 'src/app/services/revue.service';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { ModalInfoJournalComponent } from '../home/modal-info-journal/modal-info-journal.component';
 import { ResultatDeRechercheService } from './resultat-de-recherche.service';
 import { CallForPaper } from 'src/app/models/callForPaper';
@@ -13,7 +17,10 @@ import { CallForPaper } from 'src/app/models/callForPaper';
 export class ResultatDeRechercheComponent implements OnInit {
 
   // Nom des colonnes du tableau
-  displayedColumns: string[] = ['title', 'journal', 'description','deadline','SJR'];
+  displayedColumns: string[] = ['accuracy', 'title', 'journal', 'description','deadline','SJR'];
+
+  // Tableau de données lié au tableau, ici les Calls for Paper, déclaré à un tableau vide
+  dataSource = new MatTableDataSource([]);
 
   // OpenAcces d'un call
   openAccess: string;
@@ -21,17 +28,39 @@ export class ResultatDeRechercheComponent implements OnInit {
   // Liste de toutes les revues
   revueList: Array<Revue>;
 
-  callForPapers: Array<CallForPaper>;
+  // Liste des data retournées
+  calls : Array<CallForPaper>;
+  accuracy: Array<number>;
 
-  constructor(public dialog: MatDialog, private resultatDeRechercheService: ResultatDeRechercheService) {
-    this.callForPapers = new Array();
-    this.callForPapers = this.getPaperAbstract();
-    console.log(this.getPaperAbstract());
+  result : Array<{accuracy : number, call : CallForPaper}>;
+
+  // Spécificité Angular Material pour le tri et la pagination d'un tableau
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
+
+  //Le contructeur récupère les données passées depuis la page de recherche et les converties en MatTableDataSource pour les afficher
+  constructor(public dialog: MatDialog, private resultatDeRechercheService: ResultatDeRechercheService, private revueService: RevueService) {
+    this.result = new Array<{accuracy : number, call : CallForPaper}>();
+
+    this.calls = this.getCallForPaperResult();
+    this.accuracy = this.getCallForPaperAccuracy();
+
+    if(this.calls != undefined){
+      for (let index = 0; index < this.calls.length; index++){
+        this.result.push({ accuracy : this.accuracy[index], call : this.calls[index] });
+      }
+  
+      this.dataSource = new MatTableDataSource(this.result);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
   }
 
   ngOnInit(): void {
+    this.revueService.getRevues().subscribe((res => {
+      this.revueList = res;
+    }));
   }
-
 
   // Méthode d'ouverture du Dialog
   openDialog(id: number): void {
@@ -57,7 +86,12 @@ export class ResultatDeRechercheComponent implements OnInit {
     }
 
     // Récupère les résultats de la recherche précédente
-    getPaperAbstract(): Array<CallForPaper>{
+    getCallForPaperResult(): Array<CallForPaper>{
       return this.resultatDeRechercheService.callForPapers;
+    }
+
+    // Récupère les pertinences des résultats de la recherche précédente
+    getCallForPaperAccuracy(): Array<number>{
+      return this.resultatDeRechercheService.accuracy;
     }
 }

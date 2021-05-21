@@ -6,6 +6,7 @@ import { CallForPaper } from 'src/app/models/callForPaper';
 })
 export class ResultatDeRechercheService {
 
-  callForPapers: Array<CallForPaper> = new Array<CallForPaper>();
+  accuracy: Array<number>;
+  callForPapers: Array<CallForPaper>;
     
 }

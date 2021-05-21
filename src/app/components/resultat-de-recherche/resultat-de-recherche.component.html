@@ -1,8 +1,8 @@
 <div class="docs-primary-header mat-elevation-z6">
-    <h1>Result</h1>
+    <h1> Search Result</h1>
 </div>
 
-<div *ngIf="callForPapers.length == 0;then NoResult else Result"></div>
+<div *ngIf="result.length == 0;then NoResult else Result"></div>
 <ng-template #NoResult>
     <div class="noResult">
         <br>
@@ -22,14 +22,27 @@
 <ng-template #Result>
 
     <div class="content">
-        <table mat-table class="mat-elevation-z8" matSort>
+        <table mat-table class="mat-elevation-z8" [dataSource]="dataSource" matSort>
                 
+            <ng-container matColumnDef="accuracy">
+                <th mat-header-cell *matHeaderCellDef> Accuracy </th>
+                <td mat-cell *matCellDef="let item" style="text-align: justify;">
+                    <div class="c100 p{{ item.accuracy }} small">
+                        <span>{{ item.accuracy }}%</span>
+                        <div class="slice">
+                            <div class="bar"></div>
+                            <div class="fill"></div>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="title">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+                <th mat-header-cell *matHeaderCellDef> Title </th>
                 <td mat-cell *matCellDef="let item">
-                    {{ item.title }}
+                    {{ item.call.title }}
                     <div>
-                        <a mat-button class="btn-details" href="{{ item.url }}" target="_blank">
+                        <a mat-button class="btn-details" href="{{ item.call.url }}" target="_blank">
                             View details<span class="material-icons icon">visibility</span>
                         </a>
                     </div>
@@ -38,18 +51,18 @@
             
             <ng-container matColumnDef="journal">
                 <th mat-header-cell *matHeaderCellDef> Journal </th>
-                <td mat-cell *matCellDef="let item"><button mat-button class="mat-button-size" (click)="openDialog(item.fk_revue)">{{item.fk_revue | getRevueNameById | async}}</button></td>
+                <td mat-cell *matCellDef="let item"><button mat-button class="mat-button-size" (click)="openDialog(item.call.fk_revue)">{{item.call.fk_revue | getRevueNameById | async}}</button></td>
             </ng-container>
             
             <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
-                <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
+                <th mat-header-cell *matHeaderCellDef> Description </th>
+                <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.call.desc }}</td>
             </ng-container>
 
             <ng-container matColumnDef="deadline" class="deadline_cell">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Deadline </th>
+                <th mat-header-cell *matHeaderCellDef> Deadline </th>
                 <td mat-cell *matCellDef="let item" >
-                    <span *ngIf="item.deadline !== null; else empty_deadline">{{ item.deadline | date :'yyyy-MM-dd' }}</span>
+                    <span *ngIf="item.call.deadline !== null; else empty_deadline">{{ item.call.deadline | date :'yyyy-MM-dd' }}</span>
                 </td>
             </ng-container>
 
@@ -58,8 +71,8 @@
             </ng-template>
 
             <ng-container matColumnDef="SJR">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> SJR </th>
-                <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async" id="sjr"></td>
+                <th mat-header-cell *matHeaderCellDef> SJR </th>
+                <td mat-cell *matCellDef="let item" [innerHTML]="item.call.fk_revue | getWidgetSjr | async" id="sjr"></td>
             </ng-container>
             
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
