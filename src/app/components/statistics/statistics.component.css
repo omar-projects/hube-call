@@ -1,24 +1,8 @@
+/* ############### STYLE COMMUN ################## */
+
 body {
-    margin: 0;
-    padding: 1rem;
-  }
-
-/* Structure */
-table {
-  width: 100%;
-  border-radius: 25px;
-}
-
-.mat-row {
-  height: 10px;
-}
-
-.mat-button-size {
-  width: 220px!important;
-  min-width: unset!important;
-  white-space: pre-wrap !important;
-  line-height: normal;
-  text-decoration: underline;
+  margin: 0;
+  padding: 1rem;
 }
 
 .masonry-with-columns-2 {
@@ -31,14 +15,14 @@ table {
   flex-wrap: wrap;  
   margin-top: 2%;
   margin-left: 2%;
-  margin-right: 2%;
+  
 }
+
 .masonry-with-columns-2 div {
-  height: 700px;
-  line-height: 150px;
-  background-color: #774fbb;
+ margin-right: 2%; max-height: 600px;
   padding: 20px;
-  color: #fcfcfc;
+  box-shadow: 5px 5px #ccc;
+  color: #f8f8f8;
   margin: 0 1rem 1rem 0;
   font-weight: 900;
   font-size: 2rem;
@@ -47,25 +31,70 @@ table {
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
 }
-.masonry-with-columns-2 div:nth-child(1) {
+
+/* ############### STYLE : STATS DU NB DE CALLS PAR REVUE ################## */
+
+/* Div principal */
+.stats_revue {
+  background-color: #73439b;
   width: 50%;
   border-radius: 25px;
 }
-.table_stats_revue{
-  margin-right: 2%;
-  max-height: 80%;
+
+/* Zone de recherche */ 
+.mat-form-field {
+  color: black;
+  font-size: 14px;
+  height: 10%;
+  width: 100%;
+}
+
+/* Structure - Tableau */
+table {
   overflow-y: scroll;
+  height: 405px;
+  display: block;
 }
-.masonry-with-columns-2 div:nth-child(2) {
+
+table>input {
+  display: none;
+}
+
+.mat_row {
+  max-height: 10px;
+}
+
+/* Div concernant le tableau */
+.table_stats_revue {
+  background-color: #f7f7f7;
   border-radius: 25px;
-}
-.camembert{
-  background-color: #fcfcfc;
   margin-right: 2%;
-  max-height: 80%;
-  max-width: 80%;
-  z-index: 100;
-}
-.masonry-with-columns-2 div:nth-child(3) {
+  height: 450px;
+} 
+
+/* ############### STATS DU NB DE CALLS PAR REVUE ################## */
+
+.stats_editeurs {
   border-radius: 25px;
+  background-color: #73439b;
+}
+
+.pie_editeur{
+  border-radius: 25px;
+  height: 80%;
+  background-color: #f7f7f7;
+}
+
+/* ############### STATS DU NB DE CALLS PAR MOIS ################## */
+
+.stats_mensuel {
+  width: 100%;
+  border-radius: 25px;
+  background-color: #73439b;
+}
+
+.chart_mois{
+  border-radius: 25px;
+  height: 80%;
+  background-color: #f7f7f7;
 }

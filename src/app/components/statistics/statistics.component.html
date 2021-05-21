@@ -1,16 +1,22 @@
 <div class="docs-primary-header mat-elevation-z6">
-    <h1>Statistics of call for paper</h1>
+    <h1>Hub<i>e</i>Call's satistics</h1>
 </div>
 
 <div class="masonry-with-columns-2">
+
   <div class="stats_revue">
+
     <h1>Table of number of calls by journal</h1>
-    <mat-form-field>
-      <mat-label>Filter by Journal</mat-label>
-      <input matInput (keyup)="applyFilter($event)" placeholder="Ex. management">
-    </mat-form-field> 
+
+     
+
     <div class="table_stats_revue">
-      
+
+      <mat-form-field>
+        <mat-label>Filter by Journal</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. management">
+      </mat-form-field>
+
       <table mat-table class="mat-elevation-z2" [dataSource]="dataSource">  
 
         <ng-container matColumnDef="revue">
@@ -29,40 +35,47 @@
               </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr mat-header-row class="mat_row" *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row class="mat_row" *matRowDef="let row; columns: displayedColumns"></tr>
 
       </table> 
+
     </div> 
   </div>
 
   <div class="stats_editeurs">
+
     <h1>Pie of call's number by editor</h1>
-    <ngx-charts-pie-chart class="camembert" 
-        [legend]="true"
-        [scheme]="colorScheme"
-        [legendTitle]="'Editors'" 
-        [view]="[600,500]"
-        [labels]="true"
-        [results]="callByEditeur" >
-    </ngx-charts-pie-chart>
+    <div class="pie_editeur">
+      <ngx-charts-pie-chart 
+          [legend]="true"
+          [scheme]="colorScheme"
+          [legendTitle]="'Editors'" 
+          [labels]="true"
+          [results]="callByEditeur" >
+      </ngx-charts-pie-chart>
+    </div>
   </div>
 
   <div class="stats_mensuel">
+
     <h1>Graph of call's number by month</h1>
-    <ngx-charts-bar-vertical
-      [view]="[700, 400]"
-      [results]="callByMonth" 
-      [scheme]="colorScheme"
-      [gradient]="false"
-      [xAxis]="true"
-      [yAxis]="true"
-      [legend]="true"
-      [showXAxisLabel]="true"
-      [showYAxisLabel]="true"
-      [xAxisLabel]="xAxisLabelCallByMonth"
-      [yAxisLabel]="yAxisLabelCallByMonth">
-    </ngx-charts-bar-vertical>
+    
+    <div class="chart_mois">
+      <ngx-charts-bar-vertical 
+        [results]="callByMonth" 
+        [scheme]="colorScheme"
+        [gradient]="false"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="xAxisLabelCallByMonth"
+        [yAxisLabel]="yAxisLabelCallByMonth">
+      </ngx-charts-bar-vertical>
+    </div>
+
   </div>
 
 </div>
