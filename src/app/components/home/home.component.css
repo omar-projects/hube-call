@@ -170,6 +170,7 @@ td {
 
 .quickSearchForm {
   display: flex;
+  flex-flow: wrap;
   justify-content: space-between;
   align-items: center;
   width: 45%;
@@ -187,6 +188,7 @@ select {
 
 .radioGroupRank {
   display: flex;
+  flex-flow: wrap;
   justify-content: space-between;
   width: 42%;
 }

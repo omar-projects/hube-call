@@ -102,6 +102,8 @@ export class StatisticsComponent implements OnInit {
         this.callByMonth = [...data];
       });
     }));
+
+    this.dataSource.filterPredicate = (data, filter) => data.revue.name.trim().toLowerCase().indexOf(filter) !== -1;
   }
 
   // Méthode d'ouverture du Dialog
@@ -131,10 +133,6 @@ export class StatisticsComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
   }
 
 }
