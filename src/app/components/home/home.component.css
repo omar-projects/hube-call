@@ -17,6 +17,10 @@ td {
   height: 90px;
 }
 
+.mat-row:nth-child(even) {
+  background-color: #E8E7E7;
+}
+
 .mat-column-deadline {
   word-wrap: break-word !important;
   white-space: unset !important;
@@ -170,6 +174,7 @@ td {
 
 .quickSearchForm {
   display: flex;
+  flex-flow: wrap;
   justify-content: space-between;
   align-items: center;
   width: 45%;
@@ -187,6 +192,7 @@ select {
 
 .radioGroupRank {
   display: flex;
+  flex-flow: wrap;
   justify-content: space-between;
   width: 42%;
 }

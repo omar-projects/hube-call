@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CallForPaper } from '../models/callForPaper'
+import { CallForPaper } from '../models/callForPaper';CallByMonth
 import {environment} from '../../environments/environment';
+import { CallByMonth } from '../models/callByMonth'
 
 @Injectable({
   providedIn: 'root'
@@ -48,4 +49,13 @@ export class CallForPaperService {
     return this.http.get<CallForPaper[]>(url);
   }
 
+  public getNbCallByRevue(id: number) {
+    const number = `${this.apiURL}/getNbCallByRevue/${id}`;
+    console.log('getNbCallByRevue |  nombre = ' + number);
+    return this.http.get(number);
+  }
+
+  public getNbCallByMonth(){
+    return this.http.get<CallByMonth[]>(`${this.apiURL}/getNbCallByMonth`);
+  }
 }
