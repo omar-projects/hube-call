@@ -22,6 +22,7 @@ const url = new Array();
 const deadlines = new Array();
 const revues = new Array();
 const desc = new Array();
+const contenus = new Array();
 
 const fetchData = async (url) => {
   const result = await axios.get(url);
@@ -30,8 +31,11 @@ const fetchData = async (url) => {
 
 
 const getResultsEG = async () => {
+  await console.log("=============== EMERALD ===================");
+  await console.log("Scrapping :");
+
   for(let itemsite of siteUrl) {
-    console.log("Page en cours de scrapping : " + itemsite);
+    await console.log(itemsite);
 
     //Boolean true if this is the last page
     let isLastPage = false;
@@ -64,9 +68,15 @@ const getResultsEG = async () => {
       });
     }
 
-    //Cherche les deadlines dans tous les Calls For Paper
+    //Cherche les deadlines et le contenu dans tous les Calls For Paper
     for(let item of url) {
       const $ = await fetchData(item);
+
+      let content = $('.b-hero__title').text().trim().replace(/[\s]{2,}/g," ");
+      content += " ";
+      content += $('.section > div.section__inner.news-item.wysiwyg.b-single-col__inner').text().trim().replace(/[\s]{2,}/g," ");
+      contenus.push(content);
+
       $('.section > div.section__inner.news-item.wysiwyg.b-single-col__inner').each(async function(i,element){
         let deadline = 'deadline not found';
 
@@ -97,9 +107,9 @@ const getResultsEG = async () => {
     }
   }
 
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
   // On enregistre les revues et les calls 
-  insertRevuesAndCalls(1, revues, title, url, deadlines, desc);
-  
+  await insertRevuesAndCalls(1, revues, title, url, deadlines, desc, contenus);
 };
 
 module.exports = getResultsEG;

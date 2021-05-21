@@ -10,6 +10,7 @@ const url = new Array();
 const desc = new Array();
 const deadlines = new Array();
 const revues = new Array();
+const contenus = new Array();
 
 const fetchData = async (url) => {
   const result = await axios.get(url);
@@ -20,7 +21,11 @@ const fetchData = async (url) => {
  * Méthode réalisant le scrapping pour le site de l'éditeur Taylor & Francis 
  */
 const getResultsTaylorFrancis = async () => {
-  
+  await console.log("=============== TAYLOR FRANCIS ===================");
+  await console.log("Scrapping :");
+
+  await console.log(urlTaylorFrancis);
+
   const regExManagement = new RegExp("\d\*,\?1694,\d\*,\?");
   const regExTourism = new RegExp("\d\*,\?1715,\d\*,\?");
   const $ = await fetchData(urlTaylorFrancis);
@@ -42,22 +47,22 @@ const getResultsTaylorFrancis = async () => {
   });
 
   // Recherche la deadline selon l'url des call for paper récupérée plus tôt
-  for(var i = 0 ; i < url.length ; i++){
+  for(var i = 0 ; i < url.length ; i++) {
     let path = url[i];
-    const manageUrlCall = await fetchData(path);
-    manageUrlCall('div .deadline__title').each(async function(index,elem) {
-      let item = $(elem).find("strong").text();
-      if(getDate(item) === null){
-        deadlines.splice(url.indexOf(path), 0, undefined);
-      } else {
-        deadlines.splice(url.indexOf(path), 0, getDate(item));
-      }
+    const $ = await fetchData(path);
+
+    let content = $('div.panel-layout > div:nth-child(4)').text().trim().replace(/[\s]{2,}/g," ");
+    contenus.push(content);
+
+    $('div .deadline__title > h4 > span > strong').each(function(index, elem) {
+      const deadline = $(elem).text();
+      deadlines.push(deadline);
+      return false; // equivalent de break;
     });
   }
-  console.log("Lancement de l'enregistrement des revues");
   
+  await console.log("Enregistrement des nouvelles revues et/ou des nouveaux Call For Paper : ");
   // On enregistre les revues et les calls
-  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc);
-
+  await insertRevuesAndCalls(3, revues, title, url, deadlines, desc, contenus);
 };
 module.exports = getResultsTaylorFrancis;

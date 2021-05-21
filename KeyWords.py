@@ -70,34 +70,8 @@ def tf(text):
 
     return tf_score
 
-################# INVERSE DOCUMENT FREQUENCY #################
-# IDF : calculates how common or rare a word is in the entire document set
-# The closer it is to 0, the more common a word is.
-def idf(text,sentences):
-    idf_score = {}
-    for word in text:
-        word_occurence_per_phrases = check_sent(word, sentences)
-        idf_score[word] = math.log(int(len(sentences))/(word_occurence_per_phrases+1))
-
-	# Performing a log and divide
-    return idf_score
-
-# check_sent
-def check_sent(word, sentences):
-    final = [all([w in sentence for w in word]) for sentence in sentences]
-    sent_len = [sentences[i] for i in range(0, len(final)) if final[i]]
-    return int(len(sent_len))
-
-################# TF-IDF #################
-# IDF : calculates the key words on a text based on their quantity(tf)/quality(idf)
-def tf_idf_score(tokens,sentences):
-    tf_score = tf(tokens)
-    idf_score = idf(tokens,sentences)
-    return {key: tf_score[key] * idf_score.get(key, 0) for key in tf_score.keys()}
-
-
 def get_top_n(dict_elem, n):
-    result = dict(sorted(dict_elem.items(), key = itemgetter(1), reverse = True)[:n])
+    result = dict(sorted(dict_elem.items(), key = itemgetter(1), reverse = True)[:n]) 
     return result
 
 ################# TEST #################
@@ -107,7 +81,7 @@ testText3 = "About the journal The Journal of Work-Applied Management (JWAM) pro
 testText4 = "test from a simple test text"
 testText5 = "The question 'What is Dogecoin?' has a seemingly simple answer: put simply, it's a cryptocurrency created in 2013 by software developers Billy Markus and Jackson Palmer as a satire of Bitcoin and the exploding popularity of crypto. But obviously there's more to it than that. That's because Dogecoin is also one of the fastest-growing cryptocurrencies, having risen in value by 10,000% since the start of 2021. That's right: if you'd invested $100 in Dogecoin back in January, your investment would now be worth around $10,000. In fact, it's now one of the top cryptocurrency performers overall, with an estimated overall worth of more than $60 billion — making it bigger than Ford and Twitter. Best personal finance apps: See our top picks What is Ethereum? Everything you need to know about the cryptocurrency. Robinhood: What is it and how it works. Despite that growth, Dogecoin is still cheap relative to other cryptos, and that makes it an ideal option for crypto-curious investors to dip their toes in the water. Watching the price of Dogecoin fluctuate can be a good lesson for kids or noobs in how crypto markets work and prepare them for some real investing. Think of Dogecoin as the gateway cryptocurrency. Here’s everything you need to know about Dogecoin and how it works. What is Dogecoin? According to its website, Dogecoin is “a decentralized, peer-to-peer digital currency that enables you to easily send money online.” That same definition could be applied to other more established cryptocurrencies including Bitcoin, Ethereum, or Litecoin. Cryptocurrencies started gaining popularity as alternatives to traditional currency in the early 2010s. They allow money to be transferred from one person to another without using a bank, and many people believe they make for a safer and more democratic financial system. Bitcoin was launched in 2009, and today there are thousands of other “altcoins” out there. Indeed, new ones launch on a seemingly constant basis, with SafeMoon and Chia just two of the most recent. Dogecoin has also been labelled a 'memecoin' on account of its origins — and this is one area in which it really differs from most other cryptos."
 
-chosen_text = testText5
+chosen_text = sys.argv[1];
 tokens = tokenize(chosen_text)
 sentences = TextBlob(chosen_text).sentences
 
@@ -130,5 +104,5 @@ sentences = TextBlob(chosen_text).sentences
 # print()
 # print()
 # print("############ RESULT : ############")
-print(json.dumps(get_top_n(tf_idf_score(tokens,sentences), 10)))
+print(json.dumps(get_top_n(tf(tokens), 10)))
 sys.stdout.flush()

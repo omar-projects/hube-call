@@ -1,6 +1,7 @@
-DROP TABLE "CallForPaper" CASCADE;
-DROP TABLE "Revue" CASCADE;
-DROP TABLE "Editeur" CASCADE;
+DROP TABLE IF EXISTS "CallForPaper" CASCADE;
+DROP TABLE IF EXISTS "Revue" CASCADE;
+DROP TABLE IF EXISTS "Editeur" CASCADE;
+DROP TABLE IF EXISTS "MotCle" CASCADE;
 
 
 CREATE TABLE "CallForPaper" (
@@ -42,6 +43,15 @@ CREATE TABLE "Editeur" (
 	UNIQUE("name")
 ) WITH (
   OIDS=FALSE
+);
+
+CREATE TABLE "MotCle" (
+	"terme" varchar(200) NOT NULL,
+	"calls" text NULL,
+	CONSTRAINT "MotCles_pk" PRIMARY KEY ("terme"),
+	UNIQUE("terme")
+) WITH (
+	OIDS=FALSE
 );
 
 
