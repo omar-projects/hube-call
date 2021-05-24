@@ -73,7 +73,7 @@ const getDeadlineCallbyId = (request, response) => {
 // Le Call existe déjà
 const getCallbyTitle = (request, response) => {
   const title = request.params.title;
-  
+
   const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
   pool.query(sql,[title], (error, results) => {
     parseError(error, sql);
@@ -333,6 +333,60 @@ const advancedSearch = (request, response) => {
 
   // const results = {};
   // response.status(200).json(results.rows);
+}
+
+const matchKeyWords = (request, response) => {
+  const keyWords = request.body;
+  const keyWordsString = Object.keys(keyWords).join('|');
+  console.log(keyWordsString);
+  const sql = 'SELECT * FROM "MotCle" where terme similar to $1';
+  let titlesString = '';
+  let prefix = '';
+  pool.query(sql,[keyWordsString], (error, results) => {
+    parseError(error, sql);
+    const resultsTab = [];
+    console.log(results.rows);
+    results.rows.forEach(termDetails => {
+      console.log(termDetails['calls']);
+      const termDetailsJson = JSON.parse(termDetails['calls']);
+      Object.keys(termDetailsJson).forEach(key => {
+        const callObjectFound = resultsTab.find( element => element['title'] === key);
+        if( callObjectFound !== undefined ){
+          callObjectFound['frequencySum'] += termDetailsJson[key];
+          callObjectFound['occurence']++;
+        }else {
+          titlesString += prefix + key;
+          prefix = '|';
+          const callObject = {
+            title: key,
+            frequencySum: termDetailsJson[key],
+            occurence : 1
+          }
+          resultsTab.push(callObject);
+        }
+      });
+    });
+    console.log(resultsTab);
+    console.log(titlesString);
+
+    const sqlCalls = 'SELECT * FROM "CallForPaper" WHERE title similar to $1';
+
+    pool.query(sqlCalls,[titlesString] , (error, results) => {
+      parseError(error, sqlCalls);
+      results.rows.forEach(call => {
+        const callObjectFound = resultsTab.find( element => element['title'] === call['title']);
+        call['frequencySum'] = callObjectFound['frequencySum'];
+        call['occurence'] = callObjectFound['occurence'];
+      });
+      results.rows.sort((a,b) =>
+        (a['frequencySum'] < b['frequencySum']) ? 1 : ((a['frequencySum'] > b['frequencySum']) ? -1 : 0)
+      );
+      response.status(200).json(results.rows);
+    })
+
+
+    // response.status(200).json(results.rows)
+  })
 }
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
