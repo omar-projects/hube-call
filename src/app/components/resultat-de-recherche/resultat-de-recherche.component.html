@@ -27,7 +27,7 @@
             <ng-container matColumnDef="accuracy">
                 <th mat-header-cell *matHeaderCellDef> Accuracy </th>
                 <td mat-cell *matCellDef="let item" style="text-align: justify;">
-                    <div class="c100 p{{ item.frequencySum *100 | number: '.2-2'}} small">
+                    <div class="c100 p{{ item.frequencySum *100 | number: '.0-0'}} small">
                         <span>{{ item.frequencySum *100 | number: '.2-2'}}%</span>
                         <div class="slice">
                             <div class="bar"></div>
