@@ -1,0 +1,83 @@
+<div class="docs-primary-header mat-elevation-z6">
+    <h1> Search Result</h1>
+</div>
+
+<div *ngIf="result.length == 0;then NoResult else Result"></div>
+<ng-template #NoResult>
+    <div class="noResult">
+        <br>
+        <p> No results containing all your search terms were found.</p>
+        <p>Your search did not match any documents.</p>
+
+        <br>
+        <p>Suggestions : </p>
+        <ul>
+            <li>Make sure that all words are spelled correctly.</li>
+            <li>Try different keywords.</li>
+            <li>Try more general keywords.</li>
+        </ul>
+    </div>
+
+</ng-template>
+<ng-template #Result>
+
+    <div class="content">
+        <table mat-table class="mat-elevation-z8" [dataSource]="dataSource" matSort>
+
+            <ng-container matColumnDef="accuracy">
+                <th mat-header-cell *matHeaderCellDef> Accuracy </th>
+                <td mat-cell *matCellDef="let item" style="text-align: justify;">
+                    <div class="c100 p{{ item.frequencySum *100 | number: '.2-2'}} small">
+                        <span>{{ item.frequencySum *100 | number: '.2-2'}}%</span>
+                        <div class="slice">
+                            <div class="bar"></div>
+                            <div class="fill"></div>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef> Title </th>
+                <td mat-cell *matCellDef="let item">
+                    {{ item.title }}
+                    <div>
+                        <a mat-button class="btn-details" href="{{ item.url }}" target="_blank">
+                            View details<span class="material-icons icon">visibility</span>
+                        </a>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="journal">
+                <th mat-header-cell *matHeaderCellDef> Journal </th>
+                <td mat-cell *matCellDef="let item"><button mat-button class="mat-button-size" (click)="openDialog(item.fk_revue)">{{item.fk_revue | getRevueNameById | async}}</button></td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef> Description </th>
+                <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="deadline" class="deadline_cell">
+                <th mat-header-cell *matHeaderCellDef> Deadline </th>
+                <td mat-cell *matCellDef="let item" >
+                    <span *ngIf="item.deadline !== null; else empty_deadline">{{ item.deadline | date :'yyyy-MM-dd' }}</span>
+                </td>
+            </ng-container>
+
+            <ng-template #empty_deadline>
+                <span>Date not found</span>
+            </ng-template>
+
+            <ng-container matColumnDef="SJR">
+                <th mat-header-cell *matHeaderCellDef> SJR </th>
+                <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async" id="sjr"></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+    </div>
+
+</ng-template>

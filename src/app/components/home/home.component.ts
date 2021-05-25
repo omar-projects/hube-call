@@ -71,6 +71,11 @@ export class HomeComponent implements OnInit {
     });
 
     this.checkoutForm.value.rank = "none";
+
+    this.dataSource.filterPredicate = (data, filter) => 
+        data.journal.name.trim().toLowerCase().indexOf(filter) !== -1 ||
+        data.title.trim().toLowerCase().indexOf(filter) !== -1 ||
+        data.description.trim().toLowerCase().indexOf(filter) !== -1;
   }
 
   // Filtre les calls en fonction de leur rank et/ou de leur editeur

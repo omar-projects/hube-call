@@ -40,6 +40,7 @@ const pool = new Pool({
 console.log("Connexion réussie à la base de données !");
 
 //---------- CALLFORPAPERS ----------\\
+
 // Get tous les calls
 const getCall = (request, response) => {
   const sql = 'SELECT * FROM "CallForPaper" WHERE deadline >= NOW() OR deadline IS NULL';
@@ -72,7 +73,7 @@ const getDeadlineCallbyId = (request, response) => {
 // Le Call existe déjà
 const getCallbyTitle = (request, response) => {
   const title = request.params.title;
-  
+
   const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
   pool.query(sql,[title], (error, results) => {
     parseError(error, sql);
@@ -101,6 +102,16 @@ const createCall = (request, response) => {
   pool.query(sql, [title, revue, deadline, desc, url], (error, results) => {
     parseError(error, sql);
     response.status(201).send(`Call For Paper added`)
+  })
+}
+
+// Renvoie le nombre de call selon la revue
+const getNbCallByRevue = (request, response) => {
+  const fk_revue = parseInt(request.params.fk_revue);
+  const sql = 'SELECT count(*) FROM "CallForPaper" WHERE fk_revue = $1';
+  pool.query(sql, [fk_revue], (error, results) => {
+    parseError(error, sql);
+    response.status(200).send(results.rows[0].count);
   })
 }
 
@@ -284,6 +295,25 @@ const updateMotCleByTerme = (request, response) => {
   })
 }
 
+//---------- Statistique --------------\\
+
+const getNbCallByEditeur = (request, response) => {
+  const sql = 'SELECT e.name, count(c.title) as value FROM "CallForPaper" as c INNER JOIN "Revue" as r ON c.fk_revue = r.id INNER JOIN "Editeur" as e ON r.fk_editeur = e.id GROUP BY e.name';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(200).json(results.rows);
+  })
+}
+
+// Récupère le nombre de call par mois
+const getNbCallByMonth = (request, response) => {
+  const sql = 'SELECT to_char(date_insert,\'Mon\') as month, count(title) as number FROM "CallForPaper" GROUP BY month';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(200).json(results.rows)
+  })
+}
+
 //---------- Advanced search ----------\\
 
 const advancedSearch = (request, response) => {
@@ -305,7 +335,59 @@ const advancedSearch = (request, response) => {
   // response.status(200).json(results.rows);
 }
 
+const matchKeyWords = (request, response) => {
+  const keyWords = request.body;
+  const keyWordsString = Object.keys(keyWords).join('|');
+  console.log(keyWordsString);
+  const sql = 'SELECT * FROM "MotCle" where terme similar to $1';
+  let titlesString = '';
+  let prefix = '';
+  pool.query(sql,[keyWordsString], (error, results) => {
+    parseError(error, sql);
+    const resultsTab = [];
+    console.log(results.rows);
+    results.rows.forEach(termDetails => {
+      console.log(termDetails['calls']);
+      const termDetailsJson = JSON.parse(termDetails['calls']);
+      Object.keys(termDetailsJson).forEach(key => {
+        const callObjectFound = resultsTab.find( element => element['title'] === key);
+        if( callObjectFound !== undefined ){
+          callObjectFound['frequencySum'] += termDetailsJson[key];
+          callObjectFound['occurence']++;
+        }else {
+          titlesString += prefix + key;
+          prefix = '|';
+          const callObject = {
+            title: key,
+            frequencySum: termDetailsJson[key],
+            occurence : 1
+          }
+          resultsTab.push(callObject);
+        }
+      });
+    });
+    console.log(resultsTab);
+    console.log(titlesString);
 
+    const sqlCalls = 'SELECT * FROM "CallForPaper" WHERE title similar to $1';
+
+    pool.query(sqlCalls,[titlesString] , (error, results) => {
+      parseError(error, sqlCalls);
+      results.rows.forEach(call => {
+        const callObjectFound = resultsTab.find( element => element['title'] === call['title']);
+        call['frequencySum'] = callObjectFound['frequencySum'];
+        call['occurence'] = callObjectFound['occurence'];
+      });
+      results.rows.sort((a,b) =>
+        (a['frequencySum'] < b['frequencySum']) ? 1 : ((a['frequencySum'] > b['frequencySum']) ? -1 : 0)
+      );
+      response.status(200).json(results.rows);
+    })
+
+
+    // response.status(200).json(results.rows)
+  })
+}
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
@@ -334,6 +416,10 @@ app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
 
+app.get('/api/getNbCallByMonth', getNbCallByMonth);
+app.get('/api/getNbCallByRevue/:fk_revue',getNbCallByRevue)
+
+
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
@@ -345,11 +431,14 @@ app.delete('/api/revue/deleteAll', deleteAllRevues);
 
 // Association des appels API avec des routes
 app.get('/api/getEditeur', getEditeur);
+app.get('/api/getNbCallByEditeur', getNbCallByEditeur);
 app.get('/api/getEditeur/:id',getEditeurbyId);
 app.get('/api/getEditeurIdbyName/:id',getEditeurIdbyName);
 app.post('/api/createEditeur',createEditeur);
 
 app.post('/api/advanced-search',advancedSearch);
+app.post('/api/result-search',advancedSearch);
+app.post('/api/match-keywords',matchKeyWords);
 
 app.get('/api/keywords/:terme', getMotCleByTerme);
 app.post('/api/create/keyword', createMotCle);

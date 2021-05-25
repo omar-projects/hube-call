@@ -13,29 +13,37 @@ import { GetRevueNameByIdPipe } from './services/pipe/get-revue-name-by-id.pipe'
 import { GetWidgetSjrPipe } from './services/pipe/get-widget-sjr.pipe';
 import { ModalInfoJournalComponent } from './components/home/modal-info-journal/modal-info-journal.component';
 import { RechercheAvanceeComponent } from './components/recherche-avancee/recherche-avancee.component';
-
+import { ResultatDeRechercheComponent } from './components/resultat-de-recherche/resultat-de-recherche.component';
+import { ResultatDeRechercheService } from './components/resultat-de-recherche/resultat-de-recherche.service';
+import { StatisticsComponent } from './components/statistics/statistics.component';
+import { NgxMasonryModule } from 'ngx-masonry';
+import { NgxChartsModule }from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     MenuComponent,
+    StatisticsComponent,
     ModalInfoJournalComponent,
     RechercheAvanceeComponent,
     GetRevueNameByIdPipe,
-    GetWidgetSjrPipe
+    GetWidgetSjrPipe,
+    ResultatDeRechercheComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    NgxChartsModule,
     HttpClientModule,
     MaterialModule,
     FlexLayoutModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxMasonryModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent, ResultatDeRechercheService]
 })
 export class AppModule { }
