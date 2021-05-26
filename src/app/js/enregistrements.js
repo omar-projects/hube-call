@@ -4,7 +4,7 @@ const getRankOfReviewCNRS = require("./cnrs");
 const getRankOfReviewFNEGE = require("./fnege");
 const getRankOfReviewHCERES = require("./hceres");
 const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
+const getSjrWidget = require('./scimagojr');
 
 
 /**
