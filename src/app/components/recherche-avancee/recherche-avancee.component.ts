@@ -5,6 +5,7 @@ import { ResultatDeRechercheService } from '../resultat-de-recherche/resultat-de
 import { CallForPaper } from 'src/app/models/callForPaper';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
+import { BlockUI, NgBlockUI } from 'ng-block-ui';
 
 @Component({
   selector: 'app-recherche-avancee',
@@ -12,6 +13,8 @@ import {environment} from '../../../environments/environment';
   styleUrls: ['./recherche-avancee.component.css']
 })
 export class RechercheAvanceeComponent implements OnInit {
+
+  @BlockUI('recherche-en-cours') blockUI: NgBlockUI;
 
   rechercheAvanceeFormGroup: FormGroup;
 
@@ -31,7 +34,7 @@ export class RechercheAvanceeComponent implements OnInit {
   onSubmit() {
     console.log('onSubmit');
     if(this.rechercheAvanceeFormGroup.valid) {
-
+      this.blockUI.start();
 
       this.error = {}; // il n'y a plus d'erreur sur les champs du formulaire
 
@@ -58,6 +61,9 @@ export class RechercheAvanceeComponent implements OnInit {
           console.log(calls);
           // Redirige vers la page
           this.resultatDeRechercheService.callForPapers = calls;
+
+          this.blockUI.stop();
+
           this.router.navigate(['/advanced-search/result']);
           // this.router.navigate(['/advanced-search/result', {data: calls}]);
         });
