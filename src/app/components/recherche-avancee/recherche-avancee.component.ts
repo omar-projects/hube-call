@@ -32,7 +32,6 @@ export class RechercheAvanceeComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('onSubmit');
     if(this.rechercheAvanceeFormGroup.valid) {
       this.blockUI.start();
 
@@ -43,19 +42,13 @@ export class RechercheAvanceeComponent implements OnInit {
 
       const abstract = {};
       abstract['text'] = this.rechercheAvanceeFormGroup.controls['paperAbstract'].value;
-      console.log(abstract['text']);
       this.http.post(environment.apiURL + '/advanced-search', abstract).subscribe(response => {
-        console.log('------- keyWords ');
-        console.log(response);
         this.http.post<CallForPaper[]>(environment.apiURL + '/match-keywords', response).subscribe(calls => {
-          console.log('------- calls ');
-          console.log(calls);
           // Redirige vers la page
           this.resultatDeRechercheService.callForPapers = calls;
 
           this.blockUI.stop();
           this.router.navigate(['/advanced-search/result']);
-          // this.router.navigate(['/advanced-search/result', {data: calls}]);
         });
       });
     } else {

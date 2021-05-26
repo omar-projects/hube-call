@@ -29,6 +29,14 @@
                 </option>
             </select>
         </div>
+
+        <div>
+            <strong style="margin-right: 10px;">Category :</strong>
+            <select name="sousCategories"formControlName="sousCategorie" [ngModel]="'all'" >
+                <option value="all" selected>All</option>
+                <option *ngFor="let sousCategorie of sousCategorieList" value="{{ sousCategorie.id }}">{{ sousCategorie.name }}</option>
+            </select>
+        </div>
     
         <button class="btn" type="submit">
             Search
@@ -76,7 +84,7 @@
        
 
         <ng-container matColumnDef="SJR">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> SJR </th>
+            <th mat-header-cell *matHeaderCellDef> SJR </th>
             <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async" id="sjr"></td>
         </ng-container>
         

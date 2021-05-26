@@ -10,7 +10,10 @@ import { Revue } from 'src/app/models/revue';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ModalInfoJournalComponent } from './modal-info-journal/modal-info-journal.component';
 import { Editeur } from 'src/app/models/editeur';
+import { SousCategorie } from 'src/app/models/sousCategorie';
 import { EditeurService } from 'src/app/services/editeur.service';
+import { SousCategorieService } from 'src/app/services/sousCategorie.service';
+
 
 @Component({
   selector: 'app-home',
@@ -34,6 +37,9 @@ export class HomeComponent implements OnInit {
   // Liste des editeurs
   editeurList: Array<Editeur>;
 
+  // Liste des editeurs
+  sousCategorieList: Array<SousCategorie>;
+
   // Formulaire de triage par rang
   checkoutForm: FormGroup;
 
@@ -46,11 +52,13 @@ export class HomeComponent implements OnInit {
     private callService: CallForPaperService, 
     private revueService: RevueService, 
     private editeurService: EditeurService,
+    private sousCategorieService: SousCategorieService,
     public dialog: MatDialog, 
     private formBuilder: FormBuilder) {
     this.checkoutForm = this.formBuilder.group({
       rank: ['', Validators.required],
-      editeur: ['', Validators.required]
+      editeur: ['', Validators.required],
+      sousCategorie: ['', Validators.required]
     })
   }
 
@@ -70,6 +78,10 @@ export class HomeComponent implements OnInit {
       this.editeurList = res;
     });
 
+    this.sousCategorieService.getSousCategories().subscribe((res) => {
+      this.sousCategorieList = res;
+    });
+
     this.checkoutForm.value.rank = "none";
 
     this.dataSource.filterPredicate = (data, filter) => 
@@ -87,6 +99,15 @@ export class HomeComponent implements OnInit {
         calls = calls.filter((call) => {
           let revueDuCall: Revue = this.getRevueById(call.fk_revue);
           return revueDuCall.fk_editeur === this.checkoutForm.value.editeur;
+        });
+      }
+
+      if(this.checkoutForm.value.sousCategorie !== "all") {
+        calls = calls.filter((call) => {
+          let revueDuCall: Revue = this.getRevueById(call.fk_revue);
+            // On filtre le resultat avec les calls dont la revue appartient à la catégorie selectionnée
+            console.log(this.checkoutForm.value.sousCategorie);
+            return revueDuCall.categories.includes(";"+this.checkoutForm.value.sousCategorie+";");
         });
       }
 

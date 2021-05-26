@@ -15,4 +15,6 @@ export class Revue {
     isOpenAccess: boolean;
 
     sjr: string;
+
+    categories: string;
 }
