@@ -37,6 +37,14 @@
                 <option *ngFor="let editeur of editeurList" value="{{ editeur.id }}">{{ editeur.name }}</option>
             </select>
         </div>
+
+        <div>
+            <strong style="margin-right: 10px;">Categorie :</strong>
+            <select name="sousCategories"formControlName="sousCategorie" [ngModel]="'all'" >
+                <option value="all" selected>All</option>
+                <option *ngFor="let sousCategorie of sousCategorieList" value="{{ sousCategorie.id }}">{{ sousCategorie.name }}</option>
+            </select>
+        </div>
     
         <button class="btn" type="submit">
             Search

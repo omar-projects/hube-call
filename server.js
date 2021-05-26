@@ -38,7 +38,6 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
-
 //---------- CALLFORPAPERS ----------\\
 
 // Get tous les calls
@@ -189,9 +188,9 @@ const getRevueIdbyName = (request, response) => {
 
 // Créer une revue
 const createRevue = (request, response) => {
-  const { editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr} = request.body
-  const sql = 'INSERT INTO "Revue" VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7)';
-  pool.query(sql, [editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr], (error, results) => {
+  const { editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr, sousCategorie} = request.body
+  const sql = 'INSERT INTO "Revue" VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)';
+  pool.query(sql, [editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr, sousCategorie], (error, results) => {
     parseError(error, sql);
     response.status(201).send(`Revue added`)
   })
@@ -335,8 +334,49 @@ const advancedSearch = (request, response) => {
   // response.status(200).json(results.rows);
 }
 
+//---------- Catégories et sous-catégorie ----------\\
+
+// Récupération de toutes les sous-catégories
+const getSousCategorie = (request, response) => {
+  const sql = 'SELECT * FROM "SousCategorie"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(200).json(results.rows)
+  })
+}
+
+// Récupération d'une sous-catégorie selon son id
+const getSousCategorieByID = (request, response) => {
+  const id = parseInt(request.params.id);
+  const sql = 'SELECT * FROM "SousCategorie" WHERE Id = $1';
+  pool.query(sql,[id], (error, results) => {
+    parseError(error, sql);
+    if(results.rows) {
+      response.status(200).json(results.rows);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+// Récupération d'une sous-catégorie selon son nom
+const getSousCategorieByName = (request, response) => {
+  const name = request.params.name;
+  const sql = 'SELECT * FROM "SousCategorie" WHERE name = $1';
+  pool.query(sql,[name], (error, results) => {
+    parseError(error, sql);
+    if(results.rows) {
+      response.status(200).json(results.rows);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+//---------- Job ----------\\
+
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('0 0 * * *', async () => {
+schedule.scheduleJob('2 12 * * *', async () => {
   await console.log("Cron tab is running...")
   const debut = new Date();
 
@@ -362,10 +402,9 @@ app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
 
+// Appel pour des statistiques
 app.get('/api/getNbCallByMonth', getNbCallByMonth);
 app.get('/api/getNbCallByRevue/:fk_revue',getNbCallByRevue)
-
-
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
@@ -388,6 +427,14 @@ app.post('/api/result-search',advancedSearch);
 app.get('/api/keywords/:terme', getMotCleByTerme);
 app.post('/api/create/keyword', createMotCle);
 app.put('/api/keywords/:terme/update', updateMotCleByTerme);
+
+// Appel api pour les catégories et sous catégories
+app.get('/api/getSousCategorieByID/:id',getSousCategorieByID);
+app.get('/api/getSousCategorieByName/:name',getSousCategorieByName);
+app.get('/api/getSousCategorie/',getSousCategorie);
+
+
+
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **
