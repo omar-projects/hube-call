@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Revue } from 'src/app/models/revue';
+import { Editeur } from 'src/app/models/editeur';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 
@@ -8,6 +9,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 */
 export interface DialogData {
   revue: Revue;
+  editeur: Editeur;
   openAccess: string;
 }
 

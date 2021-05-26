@@ -5,3 +5,19 @@
 img {
     margin-top: 5%;
 }
+
+.is-active {
+    font-weight: bold;
+}
+
+.is-active::after {
+    content:"";
+    position: absolute;
+    bottom: 0;
+    right: 45%;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid white;
+}

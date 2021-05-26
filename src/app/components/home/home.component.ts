@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CallForPaperService } from 'src/app/services/call-for-paper.service';
 import { RevueService } from 'src/app/services/revue.service';
 import { map } from 'rxjs/operators';
@@ -99,13 +99,18 @@ export class HomeComponent implements OnInit {
   // Méthode d'ouverture du Dialog
   openDialog(id: number): void {
     let revue = this.getRevueById(id);
+    let editeur = this.getEditeurById(revue.fk_editeur);
     if(revue.isOpenAccess)
       this.openAccess = "Yes";
     else
       this.openAccess = "No";
 
     this.dialog.open(ModalInfoJournalComponent, {
-      data: {revue: revue, openAccess: this.openAccess}
+      data: {
+        revue: revue,
+        editeur: editeur,
+        openAccess: this.openAccess
+      }
     });
   }
 
@@ -117,6 +122,10 @@ export class HomeComponent implements OnInit {
         return temp;
       }
     }
+  }
+
+  getEditeurById(id :number): Editeur {
+    return this.editeurList.find(editeur => editeur.id == id);
   }
 
   // Métode d'Angular Material pour le filtre sur les données via le champ prévu à cet effet
