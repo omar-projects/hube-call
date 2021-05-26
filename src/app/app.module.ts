@@ -18,7 +18,6 @@ import { ResultatDeRechercheService } from './components/resultat-de-recherche/r
 import { StatisticsComponent } from './components/statistics/statistics.component';
 import { NgxMasonryModule } from 'ngx-masonry';
 import { NgxChartsModule }from '@swimlane/ngx-charts';
-import { BlockUIModule } from 'ng-block-ui';
 
 @NgModule({
   declarations: [
@@ -42,8 +41,7 @@ import { BlockUIModule } from 'ng-block-ui';
     FlexLayoutModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxMasonryModule,
-    BlockUIModule.forRoot()
+    NgxMasonryModule
   ],
   providers: [],
   bootstrap: [AppComponent, ResultatDeRechercheService]
