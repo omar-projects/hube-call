@@ -1,6 +1,6 @@
 {
   "name": "hube-app",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scripts": {
     "ng": "ng",
     "start": "node --unhandled-rejections=strict server.js",
@@ -42,6 +42,7 @@
     "express": "^4.17.1",
     "masonry-layout": "^4.2.2",
     "moment": "^2.29.1",
+    "ng-block-ui": "^3.0.2",
     "ngx-masonry": "^11.0.2",
     "node-schedule": "^1.3.2",
     "npm-check": "^5.9.2",

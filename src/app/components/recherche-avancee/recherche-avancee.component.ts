@@ -5,6 +5,7 @@ import { ResultatDeRechercheService } from '../resultat-de-recherche/resultat-de
 import { CallForPaper } from 'src/app/models/callForPaper';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
+import { BlockUI, NgBlockUI } from 'ng-block-ui';
 
 @Component({
   selector: 'app-recherche-avancee',
@@ -12,6 +13,8 @@ import {environment} from '../../../environments/environment';
   styleUrls: ['./recherche-avancee.component.css']
 })
 export class RechercheAvanceeComponent implements OnInit {
+
+  @BlockUI('recherche-en-cours') blockUI: NgBlockUI;
 
   rechercheAvanceeFormGroup: FormGroup;
 
@@ -29,37 +32,23 @@ export class RechercheAvanceeComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('onSubmit');
     if(this.rechercheAvanceeFormGroup.valid) {
-
+      this.blockUI.start();
 
       this.error = {}; // il n'y a plus d'erreur sur les champs du formulaire
 
       // Enregistrer le call dans la liste de calls
       this.ResetPaperAbstract();
 
-      // TEST / EXEMPLE d'utilisation des fonctions de sauvegarde des données
-          // exemple 1
-      // this.addPaperToList(this.getFakeData());
-      // this.addAccuracyToList(12);
-      //     // exemple 2
-      // this.addPaperToList(this.getFakeData2());
-      // this.addAccuracyToList(70);
-      // FIN TEST
-
       const abstract = {};
       abstract['text'] = this.rechercheAvanceeFormGroup.controls['paperAbstract'].value;
-      console.log(abstract['text']);
       this.http.post(environment.apiURL + '/advanced-search', abstract).subscribe(response => {
-        console.log('------- keyWords ');
-        console.log(response);
         this.http.post<CallForPaper[]>(environment.apiURL + '/match-keywords', response).subscribe(calls => {
-          console.log('------- calls ');
-          console.log(calls);
           // Redirige vers la page
           this.resultatDeRechercheService.callForPapers = calls;
+
+          this.blockUI.stop();
           this.router.navigate(['/advanced-search/result']);
-          // this.router.navigate(['/advanced-search/result', {data: calls}]);
         });
       });
     } else {
@@ -81,34 +70,4 @@ export class RechercheAvanceeComponent implements OnInit {
   ResetPaperAbstract(){
     this.resultatDeRechercheService.callForPapers = new Array<CallForPaper>();
   }
-
-  //#############################################################################################
-  //
-  // TEST : CREATION DE DONNEES FICTIVES
-
-  getFakeData(): CallForPaper{
-    let call =  new CallForPaper();
-    call.id = 0;
-    call.title = "Special Issue: Digital technologies as ageing population policy-supportive tool. Towards Responsible Ageing Population Policy concept";
-    call.deadline = new Date();
-    call.desc = "The aim of this special issue is to broader our understanding of various aspects of ageing societies in the context of the digital revolution. The major focus is put on emerging age-based digital divides that are also detectable in labour market, violated – due to broad technology deployment – citizenship empowerment and inclusion, state policies and action undertaken to ensure senior citizens support through ICT-based networks. We put much emphasis on digital technologies (ICT) as an opportunity-enabling tool for elder people, that helps to design state policies aiming to reduce vulnerability of ageing societies prone to fast technological developments being out of their scope, reduce being at risk of digital exclusion and support digitally-based solution for social wealth creation or e-health solutions supporting traditional health-care system. Our approach may help to build fundamentals for “responsible ageing population policy” concept where digital technologies are central tool supporting state policies.";
-    call.url = "https://www.google.fr/";
-    call.fk_revue = 2;
-
-    return call;
-  }
-
-  getFakeData2(): CallForPaper{
-    let call =  new CallForPaper();
-    call.id = 1;
-    call.title = "Special issue: Innovation in 5G technology: leadership, competition and policy issues";
-    call.deadline = new Date();
-    call.desc = "It is timely to publish a special issue on these topics in Telecommunications Policy, which has published seminal papers on the implications of 5G networks, the spectrum access and auction, all themes relevant for both scholars, policy makers and practitioners. We believe that an assessment of the leadership of the 5G development, the actual competition and the related policy issues, can yield new theoretical and empirical insights on 5G development.";
-    call.url = "https://www.google.fr/";
-    call.fk_revue = 1;
-
-    return call;
-  }
-
-  //#############################################################################################
 }

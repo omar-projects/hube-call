@@ -2,6 +2,12 @@
 
 <div mat-dialog-content>
   <label><b>Name :</b> {{ data.revue.name }}</label>
+  <label><b>Editeur :</b> 
+    {{ data.editeur.name }}
+    <img *ngIf="data.editeur.id == 1" src="../../../assets/images/logo-emerald.png" alt="no image" width="20" heigth="20"/>
+    <img *ngIf="data.editeur.id == 2" src="../../../assets/images/logo-elsevier.png" alt="no image" width="20" heigth="20"/>
+    <img *ngIf="data.editeur.id == 3" src="../../../assets/images/logo-taylor_and_francis.png" alt="no image" width="20" heigth="20"/>
+  </label>
   <label>
     <b>Rank FNEGE :</b> 
     <span *ngIf="data.revue.rankFNEGE; else empty_rank">

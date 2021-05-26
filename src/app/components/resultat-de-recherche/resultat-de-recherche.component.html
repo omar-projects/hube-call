@@ -27,7 +27,7 @@
             <ng-container matColumnDef="accuracy">
                 <th mat-header-cell *matHeaderCellDef> Accuracy </th>
                 <td mat-cell *matCellDef="let item" style="text-align: justify;">
-                    <div class="c100 p{{ item.frequencySum *100 | number: '.2-2'}} small">
+                    <div class="c100 p{{ item.frequencySum *100 | number: '.0-0'}} small">
                         <span>{{ item.frequencySum *100 | number: '.2-2'}}%</span>
                         <div class="slice">
                             <div class="bar"></div>
@@ -56,7 +56,10 @@
 
             <ng-container matColumnDef="description">
                 <th mat-header-cell *matHeaderCellDef> Description </th>
-                <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
+                <td mat-cell *matCellDef="let item" style="text-align: justify;">
+                    <span *ngIf="item.desc.length <= 500">{{ item.desc }}</span>
+                    <span *ngIf="item.desc.length > 500">{{ item.desc.substring(0, 500).concat('...') }}</span>
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="deadline" class="deadline_cell">

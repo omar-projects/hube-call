@@ -17,10 +17,10 @@ body {
     color: white;
     font-weight:300;
     margin:0;
-    padding:28px 8px;
-    font-size:20px;
+    padding: 12px;
+    font-size: 16px;
 }
 
 .content {
-    margin: 3em;
+    margin: 1.2em 3em;
 }

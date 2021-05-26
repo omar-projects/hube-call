@@ -4,8 +4,7 @@ const getRankOfReviewCNRS = require("./cnrs");
 const getRankOfReviewFNEGE = require("./fnege");
 const getRankOfReviewHCERES = require("./hceres");
 const getOpenAccess = require('./openaccess');
-const getSjrWidget = require('./sjrWidget');
-
+const { getURLScimago, getSjrWidget, getIDSousCategorie } = require('./scimagojr');
 
 /**
  * Méthode d'enregistrement des revues et des calls
@@ -33,7 +32,18 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
             const rankHCERES = await getRankOfReviewHCERES(revuesSansDoublon[i]);
             const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
             const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
-            const sjr = await getSjrWidget(revuesSansDoublon[i]);
+            const urlScimago = await getURLScimago(revuesSansDoublon[i]);
+            let sjr;
+            let sousCategorie;
+
+            // Vérification de la présence d'information sur le site Scimago concernant la revue
+            if(urlScimago==="no path"){
+                sjr = "Not found";
+                sousCategorie = "";
+            } else {
+                sjr = await getSjrWidget(urlScimago);;
+                sousCategorie = await getIDSousCategorie(urlScimago);
+            }
 
             await axios.post(`${process.env.URL_API}/createRevue`,{
                 editeur: numEditeur,
@@ -42,7 +52,8 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
                 rankHCERES: rankHCERES,
                 rankCNRS: rankCNRS,
                 isOpenAccess: isOpenAccess,
-                sjr: sjr
+                sjr: sjr,
+                sousCategorie: sousCategorie
             });
         }
     }

@@ -5,13 +5,13 @@ const insertRevuesAndCalls = require('./enregistrements');
 const getDate = require('./service');
 
 let siteUrl = [
-  "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40162"
-  /*"https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40164",
+  "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40162",
+  "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40164",
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40172",
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40174",
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40180",
   "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40182",
-  "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40187"*/
+  "https://www.emeraldgrouppublishing.com/services/authors/calls-for-papers?field_journal_category_target_id=40187"
 ]
 
 const regexDate = /(?:\d{1,2}[-/th|st|nd|rd\s]*)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?[a-z\s,.]*(?:\d{1,2}[-/th|st|nd|rd)\s,]*)+(?:\d{2,4})+/g
