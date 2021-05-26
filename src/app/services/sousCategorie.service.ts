@@ -6,13 +6,14 @@ import {environment} from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-// Service permettant la récupration des Revues via des appels API, ne pas oublié de changer l'url en fonction de l'environnement d'execution
+// Service permettant la récupration des Sous catégorie via des appels API, ne pas oublié de changer l'url en fonction de l'environnement d'execution
 export class SousCategorieService {
 
   apiURL: string = environment.apiURL;
 
   constructor(private http: HttpClient) {}
 
+  // Appel du service de récupération des sous catégories
   public getSousCategories() {
     const url = `${this.apiURL}/getSousCategorie`;
     console.log('getRevues |  url = ' + url);
