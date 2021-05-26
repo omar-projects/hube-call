@@ -51,14 +51,14 @@ export class ResultatDeRechercheComponent implements OnInit {
     this.result = new Array<{accuracy : number, call : CallForPaper}>();
 
     this.calls = this.getCallForPaperResult();
-    this.accuracy = this.getCallForPaperAccuracy();
+    // this.accuracy = this.resultatDeRechercheService.callForPapers.frequencySum * 100;
 
     if(this.calls != undefined){
       for (let index = 0; index < this.calls.length; index++){
-        this.result.push({ accuracy : this.accuracy[index], call : this.calls[index] });
+        this.result.push({ accuracy : this.calls[index].frequencySum, call : this.calls[index] });
       }
-  
-      this.dataSource = new MatTableDataSource(this.result);
+
+      this.dataSource = new MatTableDataSource(this.resultatDeRechercheService.callForPapers);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }
@@ -110,8 +110,4 @@ export class ResultatDeRechercheComponent implements OnInit {
       return this.resultatDeRechercheService.callForPapers;
     }
 
-    // Récupère les pertinences des résultats de la recherche précédente
-    getCallForPaperAccuracy(): Array<number>{
-      return this.resultatDeRechercheService.accuracy;
-    }
 }
