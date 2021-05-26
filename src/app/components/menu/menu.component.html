@@ -10,21 +10,18 @@
     </a>
     <span class="menu-spacer"></span>
     <div fxShow="true" fxHide.lt-md="true">
-      <a mat-button routerLink="/home">All Calls</a>
+      <a mat-button routerLink="/home" routerLinkActive="is-active">All Calls</a>
     </div>
     <div fxShow="true" fxHide.lt-md="true">
-      <a mat-button routerLink="/advanced-search">Advanced search</a>
+      <a mat-button routerLink="/advanced-search" routerLinkActive="is-active">Advanced search</a>
     </div>
     <div fxShow="true" fxHide.lt-md="true">
-      <a mat-button routerLink="/statistics">Statistics</a>
+      <a mat-button routerLink="/statistics" routerLinkActive="is-active">Statistics</a>
     </div>
   </mat-toolbar>
 
   <mat-sidenav-container fxFlexFill>
-    <mat-sidenav color="primary" #sidenav fxLayout="column" mode="over"  opened="false" fxHide.gt-sm="true">
-      <div fxLayout="column">
-        <a mat-button routerLink="/about-us">Calls</a>
-      </div>
+    <mat-sidenav color="primary" #sidenav fxLayout="column" mode="over" opened="false" fxHide.gt-sm="true">
     </mat-sidenav>
   </mat-sidenav-container>
 </div>

@@ -72,7 +72,7 @@ const getDeadlineCallbyId = (request, response) => {
 // Le Call existe déjà
 const getCallbyTitle = (request, response) => {
   const title = request.params.title;
-  
+
   const sql = 'SELECT id FROM "CallForPaper" WHERE title = $1';
   pool.query(sql,[title], (error, results) => {
     parseError(error, sql);
@@ -320,18 +320,13 @@ const advancedSearch = (request, response) => {
   const python = spawn('python3', ['KeyWords.py', paperAbstract.text]);
 
   python.stdout.on('data', function (data) {
-    //console.log('Pipe data from python script ...');
     dataToSend = data.toString();
   });
 
   python.on('close', (code) => {
-    //console.log(`child process close all stdio with code ${code}`);
     // send data to browser
     response.status(200).json(JSON.parse(dataToSend));
   });
-
-  // const results = {};
-  // response.status(200).json(results.rows);
 }
 
 //---------- Catégories et sous-catégorie ----------\\
@@ -374,6 +369,59 @@ const getSousCategorieByName = (request, response) => {
 }
 
 //---------- Job ----------\\
+
+const matchKeyWords = (request, response) => {
+  const keyWords = request.body;
+  const keyWordsString = Object.keys(keyWords).join('|');
+
+  const sql = 'SELECT * FROM "MotCle" where terme similar to $1';
+
+  let titlesString = '';
+  let prefix = '';
+
+  pool.query(sql,[keyWordsString], (error, results) => {
+    parseError(error, sql);
+    const resultsTab = [];
+
+    results.rows.forEach(termDetails => {
+      const termDetailsJson = JSON.parse(termDetails['calls']);
+
+      Object.keys(termDetailsJson).forEach(key => {
+        const callObjectFound = resultsTab.find( element => element['title'] === key);
+        if( callObjectFound !== undefined ){
+          callObjectFound['frequencySum'] += termDetailsJson[key];
+          callObjectFound['occurence']++;
+        }else {
+          titlesString += prefix + key;
+          prefix = '|';
+          const callObject = {
+            title: key,
+            frequencySum: termDetailsJson[key],
+            occurence : 1
+          }
+          resultsTab.push(callObject);
+        }
+      });
+    });
+
+    const sqlCalls = 'SELECT * FROM "CallForPaper" WHERE title similar to $1';
+
+    pool.query(sqlCalls,[titlesString] , (error, results) => {
+      parseError(error, sqlCalls);
+
+      results.rows.forEach(call => {
+        const callObjectFound = resultsTab.find( element => element['title'] === call['title']);
+        call['frequencySum'] = callObjectFound['frequencySum'];
+        call['occurence'] = callObjectFound['occurence'];
+      });
+
+      results.rows.sort((a,b) =>
+        (a['frequencySum'] < b['frequencySum']) ? 1 : ((a['frequencySum'] > b['frequencySum']) ? -1 : 0)
+      );
+      response.status(200).json(results.rows);
+    })
+  })
+}
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
 schedule.scheduleJob('0 0 * * *', async () => {
@@ -423,6 +471,7 @@ app.post('/api/createEditeur',createEditeur);
 
 app.post('/api/advanced-search',advancedSearch);
 app.post('/api/result-search',advancedSearch);
+app.post('/api/match-keywords',matchKeyWords);
 
 app.get('/api/keywords/:terme', getMotCleByTerme);
 app.post('/api/create/keyword', createMotCle);

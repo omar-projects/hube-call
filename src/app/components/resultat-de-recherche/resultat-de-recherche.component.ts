@@ -8,6 +8,8 @@ import { MatSort } from '@angular/material/sort';
 import { ModalInfoJournalComponent } from '../home/modal-info-journal/modal-info-journal.component';
 import { ResultatDeRechercheService } from './resultat-de-recherche.service';
 import { CallForPaper } from 'src/app/models/callForPaper';
+import { Editeur } from 'src/app/models/editeur';
+import { EditeurService } from 'src/app/services/editeur.service';
 
 @Component({
   selector: 'app-resultat-de-recherche',
@@ -28,6 +30,9 @@ export class ResultatDeRechercheComponent implements OnInit {
   // Liste de toutes les revues
   revueList: Array<Revue>;
 
+  // Liste des editeurs
+  editeurList: Array<Editeur>;
+
   // Liste des data retournées
   calls : Array<CallForPaper>;
   accuracy: Array<number>;
@@ -39,18 +44,21 @@ export class ResultatDeRechercheComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   //Le contructeur récupère les données passées depuis la page de recherche et les converties en MatTableDataSource pour les afficher
-  constructor(public dialog: MatDialog, private resultatDeRechercheService: ResultatDeRechercheService, private revueService: RevueService) {
+  constructor(public dialog: MatDialog, 
+    private resultatDeRechercheService: ResultatDeRechercheService, 
+    private revueService: RevueService,
+    private editeurService: EditeurService) {
     this.result = new Array<{accuracy : number, call : CallForPaper}>();
 
     this.calls = this.getCallForPaperResult();
-    this.accuracy = this.getCallForPaperAccuracy();
+    // this.accuracy = this.resultatDeRechercheService.callForPapers.frequencySum * 100;
 
     if(this.calls != undefined){
       for (let index = 0; index < this.calls.length; index++){
-        this.result.push({ accuracy : this.accuracy[index], call : this.calls[index] });
+        this.result.push({ accuracy : this.calls[index].frequencySum, call : this.calls[index] });
       }
-  
-      this.dataSource = new MatTableDataSource(this.result);
+
+      this.dataSource = new MatTableDataSource(this.resultatDeRechercheService.callForPapers);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }
@@ -60,18 +68,26 @@ export class ResultatDeRechercheComponent implements OnInit {
     this.revueService.getRevues().subscribe((res => {
       this.revueList = res;
     }));
+
+    this.editeurService.getEditeurs().subscribe((res) => {
+      this.editeurList = res;
+    });
   }
 
   // Méthode d'ouverture du Dialog
   openDialog(id: number): void {
     let revue = this.getRevueById(id);
+    let editeur = this.getEditeurById(revue.fk_editeur);
     if(revue.isOpenAccess)
       this.openAccess = "Yes";
     else
       this.openAccess = "No";
 
     this.dialog.open(ModalInfoJournalComponent, {
-      data: {revue: revue, openAccess: this.openAccess}
+      data: {
+        revue: revue,
+        editeur: editeur,
+        openAccess: this.openAccess}
     });
   }
 
@@ -85,13 +101,13 @@ export class ResultatDeRechercheComponent implements OnInit {
       }
     }
 
+    getEditeurById(id :number): Editeur {
+      return this.editeurList.find(editeur => editeur.id == id);
+    }
+
     // Récupère les résultats de la recherche précédente
     getCallForPaperResult(): Array<CallForPaper>{
       return this.resultatDeRechercheService.callForPapers;
     }
 
-    // Récupère les pertinences des résultats de la recherche précédente
-    getCallForPaperAccuracy(): Array<number>{
-      return this.resultatDeRechercheService.accuracy;
-    }
 }

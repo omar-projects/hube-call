@@ -7,13 +7,13 @@ const getOpenAccess = require('./openaccess');
 const { getURLScimago, getSjrWidget, getIDSousCategorie } = require('./scimagojr');
 
 /**
- * Méthode d'enregistrement des revues et des calls 
- * @param {Numéro de l'éditeur des revues} editeur 
- * @param {Titres des calls} title 
- * @param {urls des calls } url 
- * @param {deadlines des calls} deadlines 
- * @param {descriptions des calls} desc 
- * @param {Les revues trouvées par le scrapping} revues 
+ * Méthode d'enregistrement des revues et des calls
+ * @param {Numéro de l'éditeur des revues} editeur
+ * @param {Titres des calls} title
+ * @param {urls des calls } url
+ * @param {deadlines des calls} deadlines
+ * @param {descriptions des calls} desc
+ * @param {Les revues trouvées par le scrapping} revues
  */
 const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, desc, contenus) => {
     // Création en bdd des revues (sans les doublons pour optimiser le nb de requete)
@@ -21,9 +21,9 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
         return revues.indexOf(ele) == pos;
     });
 
-    for(var i = 0 ; i < revuesSansDoublon.length ; i++) { 
+    for(var i = 0 ; i < revuesSansDoublon.length ; i++) {
         const response = await axios.get(`${process.env.URL_API}/getRevueIdbyName/${revuesSansDoublon[i]}`);
-        
+
         // Si la revue n'est pas trouvée, on l'ajoute
         if(response.data == "Not found") {
             await console.log("Création de la revue : " + revuesSansDoublon[i]);
@@ -33,20 +33,17 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
             const rankFNEGE = await getRankOfReviewFNEGE(revuesSansDoublon[i]);
             const isOpenAccess = await getOpenAccess(revuesSansDoublon[i]);
             const urlScimago = await getURLScimago(revuesSansDoublon[i]);
-            let sjr_temp;
-            let sousCategorie_temp;
+            let sjr;
+            let sousCategorie;
 
             // Vérification de la présence d'information sur le site Scimago concernant la revue
             if(urlScimago==="no path"){
-                sjr_temp = "Not found";
-                sousCategorie_temp = "";
+                sjr = "Not found";
+                sousCategorie = "";
             } else {
-                sjr_temp = await getSjrWidget(urlScimago);;
-                sousCategorie_temp = await getIDSousCategorie(urlScimago);
+                sjr = await getSjrWidget(urlScimago);;
+                sousCategorie = await getIDSousCategorie(urlScimago);
             }
-
-            const sjr = sjr_temp;
-            const sousCategorie = sousCategorie_temp
 
             await axios.post(`${process.env.URL_API}/createRevue`,{
                 editeur: numEditeur,
@@ -60,14 +57,14 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
             });
         }
     }
-    
+
     // Création en bdd des calls
     for(var i = 0 ; i < title.length ; i++) {
         // encodage avec la fonction encodeURI puis manuellement pour le ? et le / et le & qui sont des caractère spéciaux dans les url
         var encodeTitle = encodeURIComponent(title[i]);
         const alreadyExist = await axios.get(`${process.env.URL_API}/getCallbyTitle/${encodeTitle}`);
 
-        // On vérifie que le call n'existe pas déjà en base 
+        // On vérifie que le call n'existe pas déjà en base
         if(alreadyExist.data === "Not found") {
             await console.log("Création du Call For Paper : " + title[i]);
 
@@ -87,7 +84,7 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
             } else {
                 await console.log("[ERROR] Revue non trouvée : " + revues[i]);
             }
-        } else { // Si il existe déjà en base on se charge de vérifier si la date de soumission a changée et on la met à jour 
+        } else { // Si il existe déjà en base on se charge de vérifier si la date de soumission a changée et on la met à jour
             const ddBase = await axios.get(`${process.env.URL_API}/getDeadlineCallbyId/${alreadyExist.data}`);
             var currDeadline = moment(new Date(deadlines[i]));
             var baseDeadline = moment(new Date(ddBase.data));
@@ -108,10 +105,10 @@ const insertRevuesAndCalls = async (numEditeur, revues, title, url, deadlines, d
 const rechercheEtEnregistrementMotCles = async (title, contenu) => {
     await console.log("Recherche des mots clés...");
     const response = await axios.post(`${process.env.URL_API}/advanced-search`,{
-        text: contenu  
+        text: contenu
     });
 
-    await console.log("Enregistrement des mots clés..."); 
+    await console.log("Enregistrement des mots clés...");
     await insertMotCles(title, response.data);
 };
 
@@ -138,7 +135,7 @@ const insertMotCles = async (title, motCles) => {
 
             // On recherche si le call n'est pas déjà présent
             const callEstDejaPresent = Object.keys(calls).includes(title);
-            
+
             // Si le call n'est pas présent, on l'ajoute à l'objet et on fait un update
             if(!callEstDejaPresent) {
                 await console.log("mise à jour du mot clé : " + terme);
@@ -147,7 +144,7 @@ const insertMotCles = async (title, motCles) => {
 
                 // Ensuite, on met à jour
                 await axios.put(`${process.env.URL_API}/keywords/${encodeTerme}/update`,{
-                    calls: JSON.stringify(calls)
+                    calls: JSON.parse(JSON.stringify(calls))
                 });
             }
         }
