@@ -137,7 +137,7 @@ td {
   background-color: #673ab7;
   border: none;
   color: white;
-  padding: 5px 16px;
+  padding: 0px 16px;
   text-align: center;
   transition: 0.3s;
   opacity: 0.8;
@@ -167,7 +167,7 @@ td {
 
 #sjr:hover {
   position: relative;
-  transform: scale(1.5);
+  transform: scale(2.5);
   border: none;
   z-index: 200;
 }
@@ -177,7 +177,7 @@ td {
   flex-flow: wrap;
   justify-content: space-between;
   align-items: center;
-  width: 45%;
+  width: 37%;
   margin-bottom: 15px;
 }
 
@@ -188,38 +188,4 @@ select {
   background-color: #eee;
   border-radius: 5px;
   box-shadow: 2px 2px #ccc;
-}
-
-.radioGroupRank {
-  display: flex;
-  flex-flow: wrap;
-  justify-content: space-between;
-  width: 42%;
-}
-
-input[type="radio"] {
-  display: none;
-}
-
-input[type="radio"] + *::before {
-  content: "";
-  display: inline-block;
-  vertical-align: bottom;
-  width: 0.9rem;
-  height: 0.9rem;
-  margin-right: 0.3rem;
-  border-radius: 50%;
-  border-style: solid;
-  border-width: 0.1rem;
-  border-color: gray;
-}
-
-input[type="radio"]:checked + * {
-  color: #673ab7;
-  border: none;
-}
-
-input[type="radio"]:checked + *::before {
-  background: radial-gradient(#673ab7 0%, #673ab7 40%, transparent 50%, transparent);
-  border-color: #673ab7;
 }

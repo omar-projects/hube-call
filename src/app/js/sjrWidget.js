@@ -37,6 +37,16 @@ const getSjrWidget = async keyword => {
   }
 
   await browser.close();
+  // On ajoute le target="_blank" dans la balise <a> pour ouvrir dans un nouvel onglet
+  // On ajoute une taille à l'image SJR (width="120")
+  if(result.toLowerCase().indexOf('unavailable') === -1) {
+    result = result.replace(' ', ' target=\"_blank\" ');
+
+    let part1 = result.substring(0, result.indexOf("img") + 3);
+    let part2 = ' width="120" ';
+    let part3 = result.substring(result.indexOf("img") + 3);
+    result = part1.concat(part2).concat(part3);
+  }
   return result;
 }
 

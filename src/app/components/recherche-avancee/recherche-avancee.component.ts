@@ -88,7 +88,7 @@ export class RechercheAvanceeComponent implements OnInit {
     call.deadline = new Date();
     call.desc = "The aim of this special issue is to broader our understanding of various aspects of ageing societies in the context of the digital revolution. The major focus is put on emerging age-based digital divides that are also detectable in labour market, violated – due to broad technology deployment – citizenship empowerment and inclusion, state policies and action undertaken to ensure senior citizens support through ICT-based networks. We put much emphasis on digital technologies (ICT) as an opportunity-enabling tool for elder people, that helps to design state policies aiming to reduce vulnerability of ageing societies prone to fast technological developments being out of their scope, reduce being at risk of digital exclusion and support digitally-based solution for social wealth creation or e-health solutions supporting traditional health-care system. Our approach may help to build fundamentals for “responsible ageing population policy” concept where digital technologies are central tool supporting state policies.";
     call.url = "https://www.google.fr/";
-    call.fk_revue = 2;    
+    call.fk_revue = 396;    
 
     return call;
   }
@@ -100,7 +100,7 @@ export class RechercheAvanceeComponent implements OnInit {
     call.deadline = new Date();
     call.desc = "It is timely to publish a special issue on these topics in Telecommunications Policy, which has published seminal papers on the implications of 5G networks, the spectrum access and auction, all themes relevant for both scholars, policy makers and practitioners. We believe that an assessment of the leadership of the 5G development, the actual competition and the related policy issues, can yield new theoretical and empirical insights on 5G development.";
     call.url = "https://www.google.fr/";
-    call.fk_revue = 1;    
+    call.fk_revue = 397;    
 
     return call;
   }
