@@ -376,7 +376,7 @@ const getSousCategorieByName = (request, response) => {
 //---------- Job ----------\\
 
 // Cron tab pour run les méthodes que l'on appelle à l'interieur tous les jours à minuit
-schedule.scheduleJob('2 12 * * *', async () => {
+schedule.scheduleJob('0 00 * * *', async () => {
   await console.log("Cron tab is running...")
   const debut = new Date();
 
