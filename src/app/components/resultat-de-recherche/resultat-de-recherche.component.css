@@ -1,205 +1,23 @@
+@import url("../home/home.component.css");
+
 .noResult {
     margin-top: 30px;
     margin-bottom: 30px;
     margin-left: 30px;
 }
 
-/* Structure */
-table {
-    width: 100%;
-    /* table-layout: fixed; */
-  }
-    
-  .mat-form-field {
-    font-size: 14px;
-    width: 100%;
-  }
-  
-  td {
-    vertical-align: middle;
-  }
-  
-  .mat-row {
-    height: 90px;
-  }
-  
-  .mat-column-deadline {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 7% !important;
-    width: 7% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  
-  .mat-column-title {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 15% !important;
-    width: 15% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
+.progress-circle:after {
+  content: attr(data-value) "%";  /* récup. valeur de progression */
+  font-size: 0.15em;              /* taille de la font en % du parent */
+  height: 100%;                   /* centrage dans le parent */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  .mat-column-accuracy {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 7% !important;
-    width: 7% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  
-  .mat-column-journal {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 10% !important;
-    width: 10% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  
-  .mat-column-description {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 40% !important;
-    width: 40% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  
-  .mat-column-SJR {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 15% !important;
-    width: 7% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  
-  .mat-cell {
-    padding: 10px;
-  }
-  
-  .mat-button-size {
-    width: 220px!important;
-    min-width: unset!important;
-    white-space: pre-wrap !important;
-    line-height: normal;
-    text-decoration: underline;
-  }
-  
-  .mat-button-size:hover {
-    color: orange;
-  }
-  
-  .btn {
-    display: flex;
-    align-items: center;
-    background-color: #f4511e;
-    border: none;
-    color: white;
-    padding: 8px 15px;
-    text-align: center;
-    opacity: 0.6;
-    transition: 0.3s;
-    text-decoration: none;
-    cursor: pointer;
-    border-radius: 20px;
-    margin-left: 15px;
-  }
-  
-  .btn-details {
-    background-color: #673ab7;
-    border: none;
-    color: white;
-    padding: 5px 16px;
-    text-align: center;
-    transition: 0.3s;
-    opacity: 0.8;
-    text-decoration: none;
-    cursor: pointer;
-    border-radius: 20px;
-    font-size: 13px;
-    margin-top: 8px;
-  }
-  
-  .btn:hover {
-    opacity: 1
-  }
-  
-  .btn-details:hover {
-    transform: scale(1.1); 
-  }
-
-  #sjr {
-    transition: transform .2s;
-  }
-  
-  #sjr:hover {
-    position: relative;
-    transform: scale(1.5);
-    border: none;
-    z-index: 200;
-  }
-
-
-  .progress-circle:after {
-    content: attr(data-value) "%";  /* récup. valeur de progression */
-    font-size: 0.15em;              /* taille de la font en % du parent */
-    height: 100%;                   /* centrage dans le parent */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    /*-- pour effet shadow intérieur --*/
-    border-radius: 50%;
-    box-shadow: 0 0 .5em rgba(0, 0, 0, .5) inset;
-  }
-
-
+  /*-- pour effet shadow intérieur --*/
+  border-radius: 50%;
+  box-shadow: 0 0 .5em rgba(0, 0, 0, .5) inset;
+}
 
 
   /*-- CIRCLE CSS POUR LE POURCENTAGE DE PERTINENCE --*/

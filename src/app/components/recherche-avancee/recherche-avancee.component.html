@@ -2,7 +2,7 @@
     <h1>Find Calls For Papers</h1>
 </div>
 
-<div class="content">
+<div class="content" *blockUI="'recherche-en-cours'; message: 'Loading'">
     <form [formGroup]="rechercheAvanceeFormGroup" (submit)="onSubmit()">
         <div class="explication">
             Enter abstract of your paper to easily find appropriate calls for paper by using text-mining technology.

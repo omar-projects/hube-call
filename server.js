@@ -38,7 +38,6 @@ const pool = new Pool({
 });
 
 console.log("Connexion réussie à la base de données !");
-
 //---------- CALLFORPAPERS ----------\\
 
 // Get tous les calls
@@ -189,9 +188,9 @@ const getRevueIdbyName = (request, response) => {
 
 // Créer une revue
 const createRevue = (request, response) => {
-  const { editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr} = request.body
-  const sql = 'INSERT INTO "Revue" VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7)';
-  pool.query(sql, [editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr], (error, results) => {
+  const { editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr, sousCategorie} = request.body
+  const sql = 'INSERT INTO "Revue" VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)';
+  pool.query(sql, [editeur, name, rankFNEGE, rankHCERES, rankCNRS, isOpenAccess, sjr, sousCategorie], (error, results) => {
     parseError(error, sql);
     response.status(201).send(`Revue added`)
   })
@@ -321,34 +320,72 @@ const advancedSearch = (request, response) => {
   const python = spawn('python3', ['KeyWords.py', paperAbstract.text]);
 
   python.stdout.on('data', function (data) {
-    //console.log('Pipe data from python script ...');
     dataToSend = data.toString();
   });
 
   python.on('close', (code) => {
-    //console.log(`child process close all stdio with code ${code}`);
     // send data to browser
     response.status(200).json(JSON.parse(dataToSend));
   });
-
-  // const results = {};
-  // response.status(200).json(results.rows);
 }
+
+//---------- Catégories et sous-catégorie ----------\\
+
+// Récupération de toutes les sous-catégories
+const getSousCategorie = (request, response) => {
+  const sql = 'SELECT * FROM "SousCategorie"';
+  pool.query(sql, (error, results) => {
+    parseError(error, sql);
+    response.status(200).json(results.rows)
+  })
+}
+
+// Récupération d'une sous-catégorie selon son id
+const getSousCategorieByID = (request, response) => {
+  const id = parseInt(request.params.id);
+  const sql = 'SELECT * FROM "SousCategorie" WHERE Id = $1';
+  pool.query(sql,[id], (error, results) => {
+    parseError(error, sql);
+    if(results.rows) {
+      response.status(200).json(results.rows);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+// Récupération d'une sous-catégorie selon son nom
+const getSousCategorieByName = (request, response) => {
+  const name = request.params.name;
+  const sql = 'SELECT * FROM "SousCategorie" WHERE name = $1';
+  pool.query(sql,[name], (error, results) => {
+    parseError(error, sql);
+    if(results.rows) {
+      response.status(200).json(results.rows);
+    } else {
+      response.status(200).send("Not found");
+    }
+  })
+}
+
+//---------- Job ----------\\
 
 const matchKeyWords = (request, response) => {
   const keyWords = request.body;
   const keyWordsString = Object.keys(keyWords).join('|');
-  console.log(keyWordsString);
+
   const sql = 'SELECT * FROM "MotCle" where terme similar to $1';
+
   let titlesString = '';
   let prefix = '';
+
   pool.query(sql,[keyWordsString], (error, results) => {
     parseError(error, sql);
     const resultsTab = [];
-    console.log(results.rows);
+
     results.rows.forEach(termDetails => {
-      console.log(termDetails['calls']);
       const termDetailsJson = JSON.parse(termDetails['calls']);
+
       Object.keys(termDetailsJson).forEach(key => {
         const callObjectFound = resultsTab.find( element => element['title'] === key);
         if( callObjectFound !== undefined ){
@@ -366,26 +403,23 @@ const matchKeyWords = (request, response) => {
         }
       });
     });
-    console.log(resultsTab);
-    console.log(titlesString);
 
     const sqlCalls = 'SELECT * FROM "CallForPaper" WHERE title similar to $1';
 
     pool.query(sqlCalls,[titlesString] , (error, results) => {
       parseError(error, sqlCalls);
+
       results.rows.forEach(call => {
         const callObjectFound = resultsTab.find( element => element['title'] === call['title']);
         call['frequencySum'] = callObjectFound['frequencySum'];
         call['occurence'] = callObjectFound['occurence'];
       });
+
       results.rows.sort((a,b) =>
         (a['frequencySum'] < b['frequencySum']) ? 1 : ((a['frequencySum'] > b['frequencySum']) ? -1 : 0)
       );
       response.status(200).json(results.rows);
     })
-
-
-    // response.status(200).json(results.rows)
   })
 }
 
@@ -416,10 +450,9 @@ app.get('/api/getCallFilterCNRS', getCallFilterCNRS);
 app.get('/api/getCallFilterFNEGE', getCallFilterFNEGE);
 app.delete('/api/call/deleteAll', deleteAllCalls);
 
+// Appel pour des statistiques
 app.get('/api/getNbCallByMonth', getNbCallByMonth);
 app.get('/api/getNbCallByRevue/:fk_revue',getNbCallByRevue)
-
-
 
 // Association des appels API avec des routes
 app.get('/api/getRevue', getRevue);
@@ -443,6 +476,14 @@ app.post('/api/match-keywords',matchKeyWords);
 app.get('/api/keywords/:terme', getMotCleByTerme);
 app.post('/api/create/keyword', createMotCle);
 app.put('/api/keywords/:terme/update', updateMotCleByTerme);
+
+// Appel api pour les catégories et sous catégories
+app.get('/api/getSousCategorieByID/:id',getSousCategorieByID);
+app.get('/api/getSousCategorieByName/:name',getSousCategorieByName);
+app.get('/api/getSousCategorie/',getSousCategorie);
+
+
+
 
 // Route par défaut qui redirige vers l'index html
 // ** Il faut commenter ce code si l'on veut tester l'api rest en local **

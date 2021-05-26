@@ -10,31 +10,31 @@
     </mat-form-field>
 
     <form class="quickSearchForm" [formGroup]="checkoutForm" (ngSubmit)="onSubmitQuickSearch()">
-        <div class="radioGroupRank">
+        <div>
             <strong style="margin-right: 10px;">Rank :</strong>
-            <span>
-                <input id="none" type="radio" value='None' formControlName="rank">
-                <label for="none">None</label>
-            </span>
-            <span>
-                <input id="cnrs" type="radio" value='CNRS' formControlName="rank">
-                <label for="cnrs">CNRS</label>
-            </span>
-            <span>
-                <input id="fnege" type="radio" value='FNEGE' formControlName="rank">
-                <label for="fnege">FNEGE</label>
-            </span>
-            <span>
-                <input id="hceres" type="radio" value='HCERES' formControlName="rank">
-                <label for="hceres">HCERES</label>
-            </span>
+            <select name="rank" formControlName="rank" [ngModel]="'None'">
+                <option value="None" selected>None</option>
+                <option value="CNRS">CNRS</option>
+                <option value="FNEGE">FNEGE</option>
+                <option value="HCERES">HCERES</option>
+            </select>
         </div>
     
         <div>
             <strong style="margin-right: 10px;">Publisher :</strong>
             <select name="editeurs" formControlName="editeur" [ngModel]="'all'">
                 <option value="all" selected>All</option>
-                <option *ngFor="let editeur of editeurList" value="{{ editeur.id }}">{{ editeur.name }}</option>
+                <option *ngFor="let editeur of editeurList" value="{{ editeur.id }}">
+                    {{ editeur.name }}
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <strong style="margin-right: 10px;">Category :</strong>
+            <select name="sousCategories"formControlName="sousCategorie" [ngModel]="'all'" >
+                <option value="all" selected>All</option>
+                <option *ngFor="let sousCategorie of sousCategorieList" value="{{ sousCategorie.id }}">{{ sousCategorie.name }}</option>
             </select>
         </div>
     
@@ -65,22 +65,26 @@
         
         <ng-container matColumnDef="description">
             <th mat-header-cell *matHeaderCellDef> Description </th>
-            <td mat-cell *matCellDef="let item" style="text-align: justify;">{{ item.desc }}</td>
+            <td mat-cell *matCellDef="let item" style="text-align: justify;">
+                <span *ngIf="item.desc.length <= 500">{{ item.desc }}</span>
+                <span *ngIf="item.desc.length > 500">{{ item.desc.substring(0, 500).concat('...') }}</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="deadline" class="deadline_cell">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Deadline </th>
             <td mat-cell *matCellDef="let item" >
                 <span *ngIf="item.deadline !== null; else empty_deadline">{{ item.deadline | date :'yyyy-MM-dd' }}</span>
+                <ng-template #empty_deadline>
+                    <span>Date not found</span>
+                </ng-template>
             </td>
         </ng-container>
 
-        <ng-template #empty_deadline>
-            <span>Date not found</span>
-        </ng-template>
+       
 
         <ng-container matColumnDef="SJR">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> SJR </th>
+            <th mat-header-cell *matHeaderCellDef> SJR </th>
             <td mat-cell *matCellDef="let item" [innerHTML]="item.fk_revue | getWidgetSjr | async" id="sjr"></td>
         </ng-container>
         

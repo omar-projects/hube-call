@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CallForPaperService } from 'src/app/services/call-for-paper.service';
 import { RevueService } from 'src/app/services/revue.service';
 import { map } from 'rxjs/operators';
@@ -10,7 +10,10 @@ import { Revue } from 'src/app/models/revue';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ModalInfoJournalComponent } from './modal-info-journal/modal-info-journal.component';
 import { Editeur } from 'src/app/models/editeur';
+import { SousCategorie } from 'src/app/models/sousCategorie';
 import { EditeurService } from 'src/app/services/editeur.service';
+import { SousCategorieService } from 'src/app/services/sousCategorie.service';
+
 
 @Component({
   selector: 'app-home',
@@ -34,6 +37,9 @@ export class HomeComponent implements OnInit {
   // Liste des editeurs
   editeurList: Array<Editeur>;
 
+  // Liste des editeurs
+  sousCategorieList: Array<SousCategorie>;
+
   // Formulaire de triage par rang
   checkoutForm: FormGroup;
 
@@ -46,11 +52,13 @@ export class HomeComponent implements OnInit {
     private callService: CallForPaperService, 
     private revueService: RevueService, 
     private editeurService: EditeurService,
+    private sousCategorieService: SousCategorieService,
     public dialog: MatDialog, 
     private formBuilder: FormBuilder) {
     this.checkoutForm = this.formBuilder.group({
       rank: ['', Validators.required],
-      editeur: ['', Validators.required]
+      editeur: ['', Validators.required],
+      sousCategorie: ['', Validators.required]
     })
   }
 
@@ -68,6 +76,10 @@ export class HomeComponent implements OnInit {
 
     this.editeurService.getEditeurs().subscribe((res) => {
       this.editeurList = res;
+    });
+
+    this.sousCategorieService.getSousCategories().subscribe((res) => {
+      this.sousCategorieList = res;
     });
 
     this.checkoutForm.value.rank = "none";
@@ -90,6 +102,15 @@ export class HomeComponent implements OnInit {
         });
       }
 
+      if(this.checkoutForm.value.sousCategorie !== "all") {
+        calls = calls.filter((call) => {
+          let revueDuCall: Revue = this.getRevueById(call.fk_revue);
+            // On filtre le resultat avec les calls dont la revue appartient à la catégorie selectionnée
+            console.log(this.checkoutForm.value.sousCategorie);
+            return revueDuCall.categories.includes(";"+this.checkoutForm.value.sousCategorie+";");
+        });
+      }
+
       this.dataSource = new MatTableDataSource(calls);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -99,13 +120,18 @@ export class HomeComponent implements OnInit {
   // Méthode d'ouverture du Dialog
   openDialog(id: number): void {
     let revue = this.getRevueById(id);
+    let editeur = this.getEditeurById(revue.fk_editeur);
     if(revue.isOpenAccess)
       this.openAccess = "Yes";
     else
       this.openAccess = "No";
 
     this.dialog.open(ModalInfoJournalComponent, {
-      data: {revue: revue, openAccess: this.openAccess}
+      data: {
+        revue: revue,
+        editeur: editeur,
+        openAccess: this.openAccess
+      }
     });
   }
 
@@ -117,6 +143,10 @@ export class HomeComponent implements OnInit {
         return temp;
       }
     }
+  }
+
+  getEditeurById(id :number): Editeur {
+    return this.editeurList.find(editeur => editeur.id == id);
   }
 
   // Métode d'Angular Material pour le filtre sur les données via le champ prévu à cet effet
